@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bg_light">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="160dp"
+        android:background="@color/primary_purple">
+
+        <View
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_gravity="top|end"
+            android:layout_marginTop="-28dp"
+            android:layout_marginEnd="-28dp"
+            android:background="@drawable/bg_circle_light_blue"
+            android:alpha="0.15"/>
+
+        <View
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            android:layout_gravity="bottom|start"
+            android:layout_marginStart="-20dp"
+            android:layout_marginBottom="-20dp"
+            android:background="@drawable/bg_circle_pink"
+            android:alpha="0.18"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center_vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="24dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="20dp">
+
+            <ImageButton
+                android:id="@+id/btnBack"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:src="@drawable/ic_back"
+                android:background="@drawable/bg_pill_white_alpha"
+                android:padding="8dp"
+                app:tint="@color/on_header_title"
+                android:contentDescription="Kembali"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Laporan Rapor"
+                android:textColor="@color/on_header_title"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:fontFamily="sans-serif-rounded"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Kelola capaian hasil belajar dan kenaikan kelas"
+                android:textColor="@color/admin_header_chip"
+                android:textSize="12sp"
+                android:fontFamily="sans-serif-rounded"/>
+
+        </LinearLayout>
+    </FrameLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:background="@color/primary_purple"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:background="@drawable/bg_body_rounded_top"
+        android:layout_marginTop="-20dp"
+        android:paddingTop="16dp">
+
+        <TextView
+            android:id="@+id/tvNamaKelasRapor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginBottom="12dp"
+            android:text="Daftar Siswa Kelas"
+            android:textColor="@color/text_dark"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-rounded" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvSiswaRapor"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="16dp" />
+
+        <ProgressBar
+            android:id="@+id/pbGuruRapor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tvEmptySiswaRapor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:text="Belum ada data siswa di kelas ini."
+            android:textAlignment="center"
+            android:textColor="@color/item_secondary_text"
+            android:textSize="14sp"
+            android:fontFamily="sans-serif-rounded"
+            android:visibility="gone" />
+
+    </LinearLayout>
+</LinearLayout>

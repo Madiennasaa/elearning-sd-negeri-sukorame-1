@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="2dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:gravity="center_vertical">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvJudulMateriItem"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Judul Materi"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_dark"/>
+
+            <TextView
+                android:id="@+id/tvMapelMateriItem"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Mata Pelajaran"
+                android:textSize="12sp"
+                android:textColor="@color/label_blue"
+                android:layout_marginTop="2dp"/>
+
+            <TextView
+                android:id="@+id/tvUrlMateriItem"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="URL"
+                android:textSize="11sp"
+                android:textColor="@color/item_muted_text"
+                android:layout_marginTop="2dp"
+                android:ellipsize="end"
+                android:maxLines="1"/>
+
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/btnDeleteMateri"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/ic_menu_delete"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:tint="@color/item_delete_icon"
+            android:padding="8dp"/>
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

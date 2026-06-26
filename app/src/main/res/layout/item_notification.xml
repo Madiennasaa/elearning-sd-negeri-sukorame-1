@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="10dp"
+    app:cardCornerRadius="18dp"
+    app:cardElevation="0dp"
+    app:cardBackgroundColor="@color/card_bg">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="16dp">
+
+        <!-- Strip kiri Ungu -->
+        <View
+            android:layout_width="5dp"
+            android:layout_height="44dp"
+            android:background="@drawable/bg_strip_rounded"
+            android:backgroundTint="@color/accent_purple"/>
+
+        <!-- Icon box -->
+        <FrameLayout
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="12dp"
+            android:background="@drawable/bg_icon_box_white">
+
+            <ImageView
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_notification_solid"
+                app:tint="@color/accent_purple"/>
+        </FrameLayout>
+
+        <!-- Teks -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginStart="14dp">
+
+            <TextView
+                android:id="@+id/tvNotifTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Pengumuman Baru"
+                android:textColor="@color/text_dark"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif-rounded"/>
+
+            <TextView
+                android:id="@+id/tvNotifMessage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Isi pesan notifikasi di sini..."
+                android:textColor="@color/on_header_sub_yellow"
+                android:textSize="13sp"
+                android:maxLines="3"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif-rounded"/>
+
+            <TextView
+                android:id="@+id/tvNotifDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="12 Juni 2024"
+                android:textColor="@color/materi_semangat"
+                android:textSize="11sp"
+                android:fontFamily="sans-serif-rounded"/>
+        </LinearLayout>
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

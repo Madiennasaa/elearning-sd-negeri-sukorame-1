@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- res/drawable/bg_body_rounded_top.xml -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="#F5F3FF"/>
+    <corners
+        android:topLeftRadius="24dp"
+        android:topRightRadius="24dp"/>
+</shape>

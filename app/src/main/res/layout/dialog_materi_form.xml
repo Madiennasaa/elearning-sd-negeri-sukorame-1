@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <Spinner
+        android:id="@+id/spinnerMapelMateri"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"/>
+
+    <EditText
+        android:id="@+id/etJudulMateri"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Judul Materi *"
+        android:inputType="text"
+        android:layout_marginBottom="12dp"/>
+
+    <EditText
+        android:id="@+id/etDeskripsiMateri"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Deskripsi (opsional)"
+        android:inputType="textMultiLine"
+        android:minLines="3"
+        android:gravity="top"
+        android:layout_marginBottom="12dp"/>
+
+    <EditText
+        android:id="@+id/etUrlMateri"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="URL YouTube *"
+        android:inputType="textUri"/>
+
+</LinearLayout>

@@ -1,0 +1,22 @@
+﻿> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:dataBindingMergeDependencyArtifactsDebug UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:processDebugNavigationResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:dataBindingGenBaseClassesDebug UP-TO-DATE
+> Task :app:generateDebugRFile UP-TO-DATE
+
+> Task :app:compileDebugKotlin
+w: file:///D:/Proyek/Mobile/Elearning_SD_Negeri_Sukorame_1/app/src/main/java/com/polinema/mi/elearning_sd_negeri_sukorame_1/ui/home/GuruInputAbsensiFragment.kt:162:68 'constructor(p0: String!, p1: String!): Locale' is deprecated. Deprecated in Java.
+w: file:///D:/Proyek/Mobile/Elearning_SD_Negeri_Sukorame_1/app/src/main/java/com/polinema/mi/elearning_sd_negeri_sukorame_1/ui/home/SplashActivity.kt:20:26 'var systemUiVisibility: Int' is deprecated. Deprecated in Java.
+w: file:///D:/Proyek/Mobile/Elearning_SD_Negeri_Sukorame_1/app/src/main/java/com/polinema/mi/elearning_sd_negeri_sukorame_1/ui/home/SplashActivity.kt:21:35 'static field SYSTEM_UI_FLAG_FULLSCREEN: Int' is deprecated. Deprecated in Java.
+w: file:///D:/Proyek/Mobile/Elearning_SD_Negeri_Sukorame_1/app/src/main/java/com/polinema/mi/elearning_sd_negeri_sukorame_1/ui/home/SplashActivity.kt:22:43 'static field SYSTEM_UI_FLAG_HIDE_NAVIGATION: Int' is deprecated. Deprecated in Java.
+w: file:///D:/Proyek/Mobile/Elearning_SD_Negeri_Sukorame_1/app/src/main/java/com/polinema/mi/elearning_sd_negeri_sukorame_1/ui/home/SplashActivity.kt:23:43 'static field SYSTEM_UI_FLAG_IMMERSIVE_STICKY: Int' is deprecated. Deprecated in Java.
+w: file:///D:/Proyek/Mobile/Elearning_SD_Negeri_Sukorame_1/app/src/main/java/com/polinema/mi/elearning_sd_negeri_sukorame_1/ui/home/SplashActivity.kt:77:13 'fun overridePendingTransition(p0: Int, p1: Int): Unit' is deprecated. Deprecated in Java.
+
+BUILD SUCCESSFUL in 31s
+9 actionable tasks: 1 executed, 8 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.1.0/userguide/configuration_cache_enabling.html

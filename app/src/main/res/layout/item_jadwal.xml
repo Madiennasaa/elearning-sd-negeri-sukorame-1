@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="10dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="0dp"
+    app:cardBackgroundColor="@color/card_bg">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="14dp">
+
+        <!-- Jam — kolom kiri -->
+        <LinearLayout
+            android:layout_width="64dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/tvJamMulai"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="07.30"
+                android:textColor="@color/primary_purple"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:fontFamily="sans-serif-rounded"/>
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="16dp"
+                android:background="@color/primary_purple"
+                android:alpha="0.3"
+                android:layout_gravity="center"/>
+
+            <TextView
+                android:id="@+id/tvJamSelesai"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="09.15"
+                android:textColor="@color/text_gray"
+                android:textSize="12sp"
+                android:fontFamily="sans-serif-rounded"/>
+        </LinearLayout>
+
+        <!-- Strip vertikal — reuse bg_strip_rounded -->
+        <View
+            android:id="@+id/stripJadwal"
+            android:layout_width="4dp"
+            android:layout_height="48dp"
+            android:layout_marginHorizontal="12dp"
+            android:background="@drawable/bg_strip_rounded"/>
+
+        <!-- Info mapel + guru -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvNamaMapel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Matematika"
+                android:textColor="@color/text_dark"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif-rounded"/>
+
+            <TextView
+                android:id="@+id/tvNamaGuru"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="Wali Kelas"
+                android:textColor="@color/text_gray"
+                android:textSize="12sp"
+                android:fontFamily="sans-serif-rounded"/>
+        </LinearLayout>
+
+        <!-- Pill jam — reuse bg_chip_orange dengan warna ungu -->
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="28dp"
+            android:background="@drawable/bg_chip_orange"
+            android:backgroundTint="@color/icon_box_purple_tint"
+            android:paddingHorizontal="10dp">
+            <TextView
+                android:id="@+id/tvDurasi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="95 mnt"
+                android:textColor="@color/primary_purple"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:fontFamily="sans-serif-rounded"/>
+        </FrameLayout>
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

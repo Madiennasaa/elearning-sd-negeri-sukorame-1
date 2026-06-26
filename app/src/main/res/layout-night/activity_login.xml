@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/splash_bg"
+    android:fillViewport="true">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="100dp">
+
+        <!-- ── Nebula dekor top-right ── -->
+        <View
+            android:id="@+id/circleTopRight"
+            android:layout_width="220dp"
+            android:layout_height="220dp"
+            android:background="@drawable/bg_circle_light_blue"
+            android:alpha="0.06"
+            android:layout_marginTop="-70dp"
+            android:layout_marginEnd="-70dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <!-- ── Bintang-bintang kecil dekor ── -->
+        <View android:layout_width="3dp" android:layout_height="3dp"
+            android:background="@drawable/bg_circle_light_blue" android:alpha="0.5"
+            android:layout_marginStart="24dp" android:layout_marginTop="40dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+        <View android:layout_width="2dp" android:layout_height="2dp"
+            android:background="@drawable/bg_circle_pink" android:alpha="0.4"
+            android:layout_marginStart="64dp" android:layout_marginTop="100dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+        <View android:layout_width="2dp" android:layout_height="2dp"
+            android:background="@drawable/bg_circle_light_blue" android:alpha="0.6"
+            android:layout_marginEnd="90dp" android:layout_marginTop="60dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+        <View android:layout_width="3dp" android:layout_height="3dp"
+            android:background="@drawable/bg_circle_light_blue" android:alpha="0.3"
+            android:layout_marginEnd="40dp" android:layout_marginTop="150dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <!-- ── Header: logo + app name ── -->
+        <LinearLayout
+            android:id="@+id/headerSection"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:paddingTop="56dp"
+            android:paddingBottom="28dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <!-- Glow ring + logo -->
+            <FrameLayout
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:gravity="center">
+
+                <View
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:background="@drawable/bg_circle_light_blue"
+                    android:alpha="0.10"
+                    android:layout_gravity="center"/>
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_gravity="center"
+                    app:cardCornerRadius="28dp"
+                    app:cardElevation="0dp"
+                    app:cardBackgroundColor="#1E1840">
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:padding="12dp"
+                        android:src="@drawable/ic_tut_wuri"
+                        android:scaleType="fitCenter"/>
+                </androidx.cardview.widget.CardView>
+            </FrameLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="SIMAS E-LEARNING"
+                android:textColor="@color/splash_title"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.1"
+                android:fontFamily="sans-serif-rounded"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="SD Negeri Sukorame 1"
+                android:textColor="@color/splash_subtitle"
+                android:textSize="13sp"
+                android:fontFamily="sans-serif-rounded"/>
+        </LinearLayout>
+
+        <!-- ── Form card — dark glassy ── -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/formCard"
+            android:layout_width="340dp"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="32dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="@color/card_bg"
+            app:layout_constraintTop_toBottomOf="@id/headerSection"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <!-- Card border overlay — 1dp stroke via inset item -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="28dp"
+                android:paddingTop="36dp"
+                android:paddingBottom="40dp">
+
+                <!-- Greeting -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Selamat Datang!"
+                    android:textColor="@color/text_dark"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    android:fontFamily="sans-serif-rounded"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Masuk untuk mulai belajar hari ini"
+                    android:textColor="@color/splash_subtitle"
+                    android:textSize="14sp"
+                    android:fontFamily="sans-serif-rounded"/>
+
+                <!-- Decorative divider — purple glow -->
+                <View
+                    android:layout_width="48dp"
+                    android:layout_height="4dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="28dp"
+                    android:background="@drawable/bg_strip_rounded"
+                    android:backgroundTint="@color/primary_purple"/>
+
+                <!-- Label NISN -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="NISN / Email"
+                    android:textColor="@color/text_dark"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="6dp"
+                    android:fontFamily="sans-serif-rounded"/>
+
+                <!-- Input NISN — dark outlined -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Masukkan NISN atau Email"
+                    android:textColorHint="@color/login_hint"
+                    app:startIconDrawable="@drawable/ic_people"
+                    app:startIconTint="@color/primary_purple"
+                    app:boxStrokeColor="@color/primary_purple"
+                    app:boxBackgroundColor="@color/surface_variant"
+                    app:hintTextColor="@color/primary_purple"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etNisn"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text"
+                        android:textColor="@color/text_dark"
+                        android:textSize="15sp"
+                        android:fontFamily="sans-serif-rounded"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- Label Password -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Kata Sandi"
+                    android:textColor="@color/text_dark"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="6dp"
+                    android:fontFamily="sans-serif-rounded"/>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Masukkan kata sandi"
+                    android:textColorHint="@color/login_hint"
+                    app:startIconDrawable="@drawable/ic_star"
+                    app:startIconTint="@color/primary_purple"
+                    app:boxStrokeColor="@color/primary_purple"
+                    app:boxBackgroundColor="@color/surface_variant"
+                    app:hintTextColor="@color/primary_purple"
+                    app:passwordToggleEnabled="true"
+                    app:passwordToggleTint="@color/primary_purple"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etPassword"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textPassword"
+                        android:textColor="@color/text_dark"
+                        android:textSize="15sp"
+                        android:fontFamily="sans-serif-rounded"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- Login button — glassy purple -->
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="32dp">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnLogin"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:text="Masuk Sekarang"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-rounded"
+                        android:backgroundTint="@color/login_btn_bg"
+                        app:cornerRadius="16dp"
+                        app:icon="@drawable/ic_home"
+                        app:iconGravity="textStart"
+                        app:iconTint="#FFFFFF"/>
+
+                    <ProgressBar
+                        android:id="@+id/progressBar"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:layout_gravity="center"
+                        android:visibility="gone"
+                        android:indeterminateTint="#FFFFFF"/>
+                </FrameLayout>
+
+                <!-- Lupa password -->
+                <TextView
+                    android:id="@+id/tvLupaPassword"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="20dp"
+                    android:text="Lupa kata sandi? Hubungi guru kamu"
+                    android:textColor="@color/text_gray"
+                    android:textSize="12sp"
+                    android:gravity="center"
+                    android:fontFamily="sans-serif-rounded"/>
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- ── Bottom spacing ── -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            app:layout_constraintTop_toBottomOf="@id/formCard"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>

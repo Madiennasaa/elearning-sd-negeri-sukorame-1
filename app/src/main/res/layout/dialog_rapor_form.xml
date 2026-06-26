@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Semester -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Semester"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_dark"
+            android:layout_marginBottom="4dp"/>
+
+        <Spinner
+            android:id="@+id/spinnerSemesterRapor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_spinner"
+            android:padding="8dp"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Ringkasan Nilai -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Ringkasan Nilai"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textColor="@color/label_blue"
+            android:layout_marginBottom="4dp"/>
+
+        <TextView
+            android:id="@+id/tvNilaiRingkasan"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="-"
+            android:textSize="13sp"
+            android:textColor="@color/text_dark"
+            android:background="@color/accent_blue_chip"
+            android:padding="10dp"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Ringkasan Absensi -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Ringkasan Absensi"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textColor="@color/label_blue"
+            android:layout_marginBottom="4dp"/>
+
+        <TextView
+            android:id="@+id/tvAbsensiRingkasan"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="-"
+            android:textSize="13sp"
+            android:textColor="@color/text_dark"
+            android:background="@color/chip_present_bg"
+            android:padding="10dp"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Status Naik Kelas -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Status Kenaikan Kelas"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_dark"
+            android:layout_marginBottom="4dp"/>
+
+        <Spinner
+            android:id="@+id/spinnerStatusNaik"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_spinner"
+            android:padding="8dp"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Catatan Guru -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Catatan Guru"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_dark"
+            android:layout_marginBottom="4dp"/>
+
+        <EditText
+            android:id="@+id/etCatatanRapor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Tulis catatan untuk siswa ini..."
+            android:inputType="textMultiLine"
+            android:minLines="4"
+            android:maxLines="6"
+            android:gravity="top"
+            android:background="@drawable/bg_edittext"
+            android:padding="10dp"/>
+
+    </LinearLayout>
+
+</ScrollView>

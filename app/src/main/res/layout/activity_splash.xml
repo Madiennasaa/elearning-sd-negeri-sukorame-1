@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/splash_bg">
+
+    <!-- Dekor lingkaran top-right -->
+    <View
+        android:layout_width="280dp"
+        android:layout_height="280dp"
+        android:background="@drawable/bg_circle_light_blue"
+        android:alpha="0.12"
+        android:layout_marginTop="-80dp"
+        android:layout_marginEnd="-80dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- Dekor lingkaran bottom-left -->
+    <View
+        android:layout_width="180dp"
+        android:layout_height="180dp"
+        android:background="@drawable/bg_circle_light_blue"
+        android:alpha="0.10"
+        android:layout_marginBottom="-60dp"
+        android:layout_marginStart="-60dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <!-- Logo container -->
+    <LinearLayout
+        android:id="@+id/logoContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:alpha="0"
+        app:layout_constraintBottom_toTopOf="@id/tvTagline"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed"
+        android:layout_marginBottom="24dp">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="140dp"
+            android:layout_height="140dp"
+            app:cardCornerRadius="32dp"
+            app:cardElevation="16dp"
+            app:cardBackgroundColor="@color/card_bg">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="16dp"
+                android:src="@drawable/ic_tut_wuri"
+                android:scaleType="fitCenter"/>
+        </androidx.cardview.widget.CardView>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="SIMAS E-LEARNING"
+            android:textColor="@color/splash_title"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.1"
+            android:fontFamily="sans-serif-rounded"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="SD Negeri Sukorame 1"
+            android:textColor="@color/splash_subtitle"
+            android:textSize="14sp"
+            android:fontFamily="sans-serif-rounded"/>
+    </LinearLayout>
+
+    <!-- Tagline bawah -->
+    <TextView
+        android:id="@+id/tvTagline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="48dp"
+        android:text="Belajar lebih menyenangkan ✨"
+        android:textColor="@color/splash_subtitle"
+        android:textSize="13sp"
+        android:alpha="0"
+        android:fontFamily="sans-serif-rounded"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <!-- Loading dots -->
+    <LinearLayout
+        android:id="@+id/dotsContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="24dp"
+        android:gravity="center"
+        android:alpha="0"
+        app:layout_constraintBottom_toTopOf="@id/tvTagline"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <View android:id="@+id/dot1"
+            android:layout_width="8dp" android:layout_height="8dp"
+            android:layout_marginHorizontal="4dp"
+            android:background="@drawable/bg_circle_light_blue"/>
+        <View android:id="@+id/dot2"
+            android:layout_width="8dp" android:layout_height="8dp"
+            android:layout_marginHorizontal="4dp"
+            android:background="@drawable/bg_circle_light_blue"
+            android:alpha="0.5"/>
+        <View android:id="@+id/dot3"
+            android:layout_width="8dp" android:layout_height="8dp"
+            android:layout_marginHorizontal="4dp"
+            android:background="@drawable/bg_circle_light_blue"
+            android:alpha="0.25"/>
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/page_bg_warm">
+
+    <!-- HEADER -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="180dp"
+        android:background="@color/header_orange">
+
+        <View
+            android:layout_width="110dp"
+            android:layout_height="110dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="-30dp"
+            android:layout_marginEnd="-30dp"
+            android:background="@drawable/bg_circle_light_orange"
+            android:alpha="0.2"/>
+
+        <View
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="-20dp"
+            android:layout_marginBottom="-20dp"
+            android:background="@drawable/bg_circle_light_orange"
+            android:alpha="0.15"/>
+
+        <ImageView
+            android:id="@+id/ivBack"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:padding="8dp"
+            android:src="@drawable/ic_back"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:tint="@color/on_header_title"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="24dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/ivBack"
+            app:layout_constraintVertical_bias="0.4">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="✏️"
+                android:textSize="30sp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Tugas Ku"
+                android:textColor="@color/on_header_title"
+                android:textSize="26sp"
+                android:textStyle="bold"
+                android:fontFamily="sans-serif-rounded"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Yuk selesaikan tugasmu hari ini!"
+                android:textColor="@color/on_header_sub_orange"
+                android:textSize="13sp"
+                android:fontFamily="sans-serif-rounded"/>
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- SUMMARY STRIP -->
+    <LinearLayout
+        android:id="@+id/layoutSummary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingHorizontal="20dp"
+        android:paddingVertical="14dp"
+        android:gravity="center_vertical"
+        android:background="@color/card_bg">
+
+        <!-- Chip aktif -->
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:background="@drawable/bg_chip_orange"
+            android:paddingHorizontal="14dp">
+            <TextView
+                android:id="@+id/tvChipAktif"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="3 Aktif"
+                android:textColor="@color/header_orange"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:fontFamily="sans-serif-rounded"/>
+        </FrameLayout>
+
+        <!-- Chip selesai -->
+        <FrameLayout
+            android:id="@+id/layoutChipSelesai"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/bg_chip_green"
+            android:paddingHorizontal="14dp"
+            android:visibility="gone">
+            <TextView
+                android:id="@+id/tvChipSelesai"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="0 Selesai"
+                android:textColor="@color/label_green"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:fontFamily="sans-serif-rounded"/>
+        </FrameLayout>
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1"/>
+
+        <TextView
+            android:id="@+id/tvSortLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🕐 Urutan deadline"
+            android:textColor="@color/item_pending_text"
+            android:textSize="12sp"
+            android:fontFamily="sans-serif-rounded"/>
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/item_warm_bg"/>
+
+    <!-- EMPTY STATE -->
+    <LinearLayout
+        android:id="@+id/layoutEmpty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:paddingTop="48dp"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🎉"
+            android:textSize="52sp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Tidak ada tugas hari ini!"
+            android:textColor="@color/text_dark"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-rounded"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="Semua tugasmu sudah selesai 😊"
+            android:textColor="@color/materi_semangat"
+            android:textSize="14sp"
+            android:fontFamily="sans-serif-rounded"/>
+    </LinearLayout>
+
+    <!-- LIST -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvTugas"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="24dp"
+        android:clipToPadding="false"/>
+
+</LinearLayout>

@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_light"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="40dp">
+
+        <!-- ── HEADER BLOCK — Cosmic Purple/Indigo ── -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="220dp"
+            android:background="@drawable/bg_siswa_header">
+
+            <!-- Nebula glow top-right -->
+            <View
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:layout_gravity="top|end"
+                android:layout_marginTop="-60dp"
+                android:layout_marginEnd="-60dp"
+                android:background="@drawable/bg_circle_light_blue"
+                android:alpha="0.08" />
+
+            <!-- Purple orb bottom-left -->
+            <View
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_gravity="bottom|start"
+                android:layout_marginStart="-30dp"
+                android:layout_marginBottom="-30dp"
+                android:background="@drawable/bg_circle_pink"
+                android:alpha="0.12" />
+
+            <!-- Stars (tiny accent dots) -->
+            <View android:layout_width="3dp" android:layout_height="3dp"
+                android:background="@drawable/bg_circle_light_blue" android:alpha="0.6"
+                android:layout_gravity="top|start"
+                android:layout_marginStart="40dp" android:layout_marginTop="30dp"/>
+            <View android:layout_width="2dp" android:layout_height="2dp"
+                android:background="@drawable/bg_circle_pink" android:alpha="0.5"
+                android:layout_gravity="top|start"
+                android:layout_marginStart="100dp" android:layout_marginTop="60dp"/>
+            <View android:layout_width="3dp" android:layout_height="3dp"
+                android:background="@drawable/bg_circle_light_blue" android:alpha="0.4"
+                android:layout_gravity="top|end"
+                android:layout_marginEnd="120dp" android:layout_marginTop="80dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:gravity="center_vertical"
+                android:paddingStart="28dp"
+                android:paddingEnd="28dp"
+                android:paddingTop="24dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="⭐"
+                    android:textSize="36sp" />
+
+                <TextView
+                    android:id="@+id/tvGreeting"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Halo, Budi!"
+                    android:textColor="@color/on_header_title"
+                    android:textSize="30sp"
+                    android:textStyle="bold"
+                    android:fontFamily="sans-serif-rounded" />
+
+                <TextView
+                    android:id="@+id/tvKelas"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="Kelas 1A • SD Negeri Sukorame 1"
+                    android:textColor="@color/siswa_header_text_sub"
+                    android:textSize="15sp"
+                    android:fontFamily="sans-serif-rounded" />
+
+            </LinearLayout>
+        </FrameLayout>
+
+        <!-- Glowing separator strip -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="@color/primary_purple"
+            android:alpha="0.4"/>
+
+        <!-- Section label -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="8dp"
+            android:text="Ayo Belajar Hari Ini! 🎒"
+            android:textColor="@color/text_dark"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-rounded" />
+
+        <!-- MATERI CARD — dark blue galaxy -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/menuMateri"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="12dp"
+            android:foreground="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            app:cardCornerRadius="28dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="@color/siswa_materi_card">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <!-- Subtle glow circles -->
+                <View
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_gravity="end|bottom"
+                    android:layout_marginEnd="-20dp"
+                    android:layout_marginBottom="-20dp"
+                    android:background="@drawable/bg_circle_light_blue"
+                    android:alpha="0.15" />
+
+                <View
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:layout_gravity="end|top"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginTop="-15dp"
+                    android:background="@drawable/bg_circle_light_blue"
+                    android:alpha="0.10" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingStart="24dp"
+                    android:paddingEnd="16dp">
+
+                    <!-- Icon box — night style -->
+                    <FrameLayout
+                        android:layout_width="72dp"
+                        android:layout_height="72dp"
+                        android:background="@drawable/bg_icon_box_white">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="📚"
+                            android:textSize="32sp" />
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginStart="20dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Materi"
+                            android:textColor="@color/on_header_title"
+                            android:textSize="24sp"
+                            android:textStyle="bold"
+                            android:fontFamily="sans-serif-rounded" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="Buku &amp; Video Pelajaran"
+                            android:textColor="@color/on_header_sub_blue"
+                            android:textSize="14sp"
+                            android:fontFamily="sans-serif-rounded" />
+
+                        <FrameLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="32dp"
+                            android:layout_marginTop="10dp"
+                            android:background="@drawable/bg_pill_white_alpha"
+                            android:paddingHorizontal="14dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:text="Buka  ›"
+                                android:textColor="@color/on_header_title"
+                                android:textSize="13sp"
+                                android:textStyle="bold"
+                                android:fontFamily="sans-serif-rounded" />
+                        </FrameLayout>
+                    </LinearLayout>
+                </LinearLayout>
+            </FrameLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- TUGAS CARD — dark orange tint -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/menuTugas"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="16dp"
+            android:foreground="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            app:cardCornerRadius="28dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="@color/siswa_tugas_card">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <View
+                    android:layout_width="110dp"
+                    android:layout_height="110dp"
+                    android:layout_gravity="end|bottom"
+                    android:layout_marginEnd="-25dp"
+                    android:layout_marginBottom="-25dp"
+                    android:background="@drawable/bg_circle_light_orange"
+                    android:alpha="0.15" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingStart="24dp"
+                    android:paddingEnd="16dp">
+
+                    <FrameLayout
+                        android:layout_width="72dp"
+                        android:layout_height="72dp"
+                        android:background="@drawable/bg_icon_box_white">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="✏️"
+                            android:textSize="32sp" />
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginStart="20dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Tugas"
+                            android:textColor="@color/on_header_title"
+                            android:textSize="24sp"
+                            android:textStyle="bold"
+                            android:fontFamily="sans-serif-rounded" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="PR &amp; Latihan Soal"
+                            android:textColor="@color/on_header_sub_orange"
+                            android:textSize="14sp"
+                            android:fontFamily="sans-serif-rounded" />
+
+                        <FrameLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="32dp"
+                            android:layout_marginTop="10dp"
+                            android:background="@drawable/bg_pill_white_alpha"
+                            android:paddingHorizontal="14dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:text="Buka  ›"
+                                android:textColor="@color/on_header_title"
+                                android:textSize="13sp"
+                                android:textStyle="bold"
+                                android:fontFamily="sans-serif-rounded" />
+                        </FrameLayout>
+                    </LinearLayout>
+                </LinearLayout>
+            </FrameLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Motivasi text -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:layout_marginStart="24dp"
+            android:text="Semangat belajar ya! 🌟"
+            android:textColor="@color/siswa_semangat_text"
+            android:textSize="16sp"
+            android:fontFamily="sans-serif-rounded" />
+
+    </LinearLayout>
+</ScrollView>

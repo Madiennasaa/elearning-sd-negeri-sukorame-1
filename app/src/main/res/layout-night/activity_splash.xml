@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/splash_bg">
+
+    <!-- ── Bintang-bintang dekoratif (titik-titik kecil) ── -->
+    <View android:layout_width="3dp" android:layout_height="3dp"
+        android:background="@drawable/bg_circle_light_blue" android:alpha="0.6"
+        android:layout_marginStart="32dp" android:layout_marginTop="60dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+    <View android:layout_width="2dp" android:layout_height="2dp"
+        android:background="@drawable/bg_circle_light_blue" android:alpha="0.4"
+        android:layout_marginStart="80dp" android:layout_marginTop="120dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+    <View android:layout_width="4dp" android:layout_height="4dp"
+        android:background="@drawable/bg_circle_light_blue" android:alpha="0.5"
+        android:layout_marginEnd="50dp" android:layout_marginTop="80dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+    <View android:layout_width="2dp" android:layout_height="2dp"
+        android:background="@drawable/bg_circle_light_blue" android:alpha="0.7"
+        android:layout_marginEnd="110dp" android:layout_marginTop="160dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+    <View android:layout_width="3dp" android:layout_height="3dp"
+        android:background="@drawable/bg_circle_pink" android:alpha="0.5"
+        android:layout_marginStart="60dp" android:layout_marginTop="200dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+    <View android:layout_width="2dp" android:layout_height="2dp"
+        android:background="@drawable/bg_circle_light_blue" android:alpha="0.3"
+        android:layout_marginEnd="30dp" android:layout_marginTop="220dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <!-- ── Nebula circle top-right ── -->
+    <View
+        android:layout_width="260dp"
+        android:layout_height="260dp"
+        android:background="@drawable/bg_circle_light_blue"
+        android:alpha="0.06"
+        android:layout_marginTop="-80dp"
+        android:layout_marginEnd="-80dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- ── Nebula circle bottom-left ── -->
+    <View
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:background="@drawable/bg_circle_pink"
+        android:alpha="0.05"
+        android:layout_marginBottom="-60dp"
+        android:layout_marginStart="-60dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <!-- ── Logo container ── -->
+    <LinearLayout
+        android:id="@+id/logoContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:alpha="0"
+        app:layout_constraintBottom_toTopOf="@id/tvTagline"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed"
+        android:layout_marginBottom="24dp">
+
+        <!-- Glow ring around logo -->
+        <FrameLayout
+            android:layout_width="160dp"
+            android:layout_height="160dp"
+            android:gravity="center">
+
+            <!-- Outer glow ring -->
+            <View
+                android:layout_width="160dp"
+                android:layout_height="160dp"
+                android:background="@drawable/bg_circle_light_blue"
+                android:alpha="0.12"
+                android:layout_gravity="center"/>
+
+            <!-- Mid ring -->
+            <View
+                android:layout_width="148dp"
+                android:layout_height="148dp"
+                android:background="@drawable/bg_circle_light_blue"
+                android:alpha="0.10"
+                android:layout_gravity="center"/>
+
+            <!-- Logo card — dark glassy -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="130dp"
+                android:layout_height="130dp"
+                android:layout_gravity="center"
+                app:cardCornerRadius="36dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="#1E1840">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:padding="16dp"
+                    android:src="@drawable/ic_tut_wuri"
+                    android:scaleType="fitCenter"/>
+            </androidx.cardview.widget.CardView>
+
+        </FrameLayout>
+
+        <!-- App name -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:text="SIMAS E-LEARNING"
+            android:textColor="@color/splash_title"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.12"
+            android:fontFamily="sans-serif-rounded"/>
+
+        <!-- School name -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="SD Negeri Sukorame 1"
+            android:textColor="@color/splash_subtitle"
+            android:textSize="14sp"
+            android:fontFamily="sans-serif-rounded"/>
+
+        <!-- Decorative divider -->
+        <View
+            android:layout_width="48dp"
+            android:layout_height="3dp"
+            android:layout_marginTop="18dp"
+            android:background="@drawable/bg_strip_rounded"
+            android:backgroundTint="@color/primary_purple"/>
+    </LinearLayout>
+
+    <!-- Tagline bottom -->
+    <TextView
+        android:id="@+id/tvTagline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="52dp"
+        android:text="Belajar lebih menyenangkan ✨"
+        android:textColor="@color/splash_subtitle"
+        android:textSize="13sp"
+        android:alpha="0"
+        android:fontFamily="sans-serif-rounded"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <!-- Loading dots -->
+    <LinearLayout
+        android:id="@+id/dotsContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="24dp"
+        android:gravity="center"
+        android:alpha="0"
+        app:layout_constraintBottom_toTopOf="@id/tvTagline"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <View android:id="@+id/dot1"
+            android:layout_width="10dp" android:layout_height="10dp"
+            android:layout_marginHorizontal="5dp"
+            android:background="@drawable/bg_circle_light_blue"/>
+        <View android:id="@+id/dot2"
+            android:layout_width="10dp" android:layout_height="10dp"
+            android:layout_marginHorizontal="5dp"
+            android:background="@drawable/bg_circle_pink"
+            android:alpha="0.5"/>
+        <View android:id="@+id/dot3"
+            android:layout_width="10dp" android:layout_height="10dp"
+            android:layout_marginHorizontal="5dp"
+            android:background="@drawable/bg_circle_light_blue"
+            android:alpha="0.25"/>
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

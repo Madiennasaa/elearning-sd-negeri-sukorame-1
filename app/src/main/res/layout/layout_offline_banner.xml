@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/offlineBanner"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/item_delete_icon"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
+    android:paddingTop="10dp"
+    android:paddingBottom="10dp"
+    android:visibility="gone">
+
+    <!-- Pakai TextView emoji sebagai ikon agar tidak perlu colorFilter -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="⚠"
+        android:textColor="@color/on_header_title"
+        android:textSize="16sp"
+        android:layout_marginEnd="10dp" />
+
+    <TextView
+        android:id="@+id/tvOfflineMessage"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="Tidak ada koneksi internet. Periksa jaringan Anda."
+        android:textColor="@color/on_header_title"
+        android:textSize="13sp" />
+
+    <TextView
+        android:id="@+id/btnRetry"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="COBA LAGI"
+        android:textColor="@color/offline_bg"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:paddingStart="12dp"
+        android:paddingEnd="4dp" />
+</LinearLayout>

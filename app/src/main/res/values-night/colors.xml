@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ══════════════════════════════════════════
+         NIGHT MODE — Midnight Cosmic Theme
+         Deep navy / indigo palette
+    ══════════════════════════════════════════ -->
+
+    <!-- ── Compat placeholders (tidak dipakai secara visual) ── -->
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+
+    <!-- ── Primary Brand (lebih terang di dark mode) ── -->
+    <color name="primary_purple">#8B80FF</color>
+    <color name="primary_purple_light">#B0A8FF</color>
+    <color name="light_purple">#1E1B3E</color>
+
+    <!-- ── Background &amp; Surface ── -->
+    <color name="bg_light">#0B0E17</color>          <!-- Deep dark background -->
+    <color name="card_bg">#161B2A</color>            <!-- Card background -->
+    <color name="surface_variant">#222939</color>
+    <color name="divider_color">#2D3648</color>
+    <color name="divider_inner">#252C3E</color>
+    <color name="page_bg_default">#0B0E17</color>
+    <color name="page_bg_warm">#0F1018</color>       <!-- Warm page: tetap gelap di malam -->
+
+    <!-- ── Text ── -->
+    <color name="text_dark">#F2F5FF</color>          <!-- Off-white primary text -->
+    <color name="text_gray">#A1A9C3</color>          <!-- Muted secondary text -->
+    <color name="text_hint">#636E8F</color>          <!-- Dimmed hint text -->
+
+    <!-- ── Header Background Colors (solid fallback) ── -->
+    <color name="header_purple">#1A1340</color>
+    <color name="header_blue">#0A1A30</color>
+    <color name="header_orange">#2E1A0E</color>
+    <color name="header_yellow">#1A1A0A</color>
+
+    <!-- ── Siswa (Student) Header ── -->
+    <color name="siswa_header_bg">#12153A</color>    <!-- Deep indigo, replaces bright yellow -->
+    <color name="siswa_header_text_sub">#8B80FF</color>
+    <color name="siswa_semangat_text">#8B80FF</color>
+    <color name="siswa_materi_card">#152238</color>  <!-- Dark blue card -->
+    <color name="siswa_tugas_card">#2A1508</color>   <!-- Dark orange card -->
+
+    <!-- ── On-header text (always readable on dark headers) ── -->
+    <color name="on_header_title">#F2F5FF</color>
+    <color name="on_header_sub_purple">#C5BEFF</color>
+    <color name="on_header_sub_blue">#93C5FD</color>
+    <color name="on_header_sub_orange">#FCA882</color>
+    <color name="on_header_sub_yellow">#FDE68A</color>
+    <color name="admin_header_chip">#8B9DC3</color>
+
+    <!-- ── Guru ── -->
+    <color name="guru_header_start">#0A1A30</color>
+    <color name="guru_header_end">#0A1425</color>
+    <color name="guru_name_text">#93C5FD</color>
+
+    <!-- ── Wali (Parent) ── -->
+    <color name="wali_header_start">#1A0A28</color>
+    <color name="wali_name_text">#E9D5FF</color>
+    <color name="child_card_bg">#1C162E</color>
+    <color name="child_name_text">#CE93D8</color>
+    <color name="child_kelas_text">#AB47BC</color>
+
+    <!-- ── Kepala Sekolah ── -->
+    <color name="kepala_header_start">#0F1520</color>
+    <color name="kepala_name_text">#CBD5E1</color>
+    <color name="stat_box_bg">#161B2A</color>
+    <color name="stat_label_text">#546E7A</color>
+
+    <!-- ── Admin ── -->
+    <color name="admin_header_start">#091510</color>
+    <color name="admin_name_text">#86EFAC</color>
+    <color name="admin_sub_text">#4ADE80</color>
+    <color name="admin_card_bg">#0D1410</color>
+    <color name="admin_online_dot">#4ADE80</color>
+    <color name="admin_neutral_label">#64748B</color>
+
+    <!-- ── Icon Box Tints (muted backgrounds untuk dark mode) ── -->
+    <color name="icon_box_purple_tint">#242145</color>
+    <color name="icon_box_green_tint">#0F2018</color>
+    <color name="icon_box_orange_tint">#281A0A</color>
+    <color name="icon_box_blue_tint">#0F1E30</color>
+    <color name="icon_box_red_tint">#280F14</color>
+    <color name="icon_box_teal_tint">#0F2020</color>
+    <color name="icon_box_yellow_tint">#211E0A</color>
+
+    <!-- ── Label Text Colors (vibrant on dark) ── -->
+    <color name="label_purple">#B39DDB</color>
+    <color name="label_green">#86EFAC</color>
+    <color name="label_orange">#FDBA74</color>
+    <color name="label_blue">#93C5FD</color>
+    <color name="label_red">#FCA5A5</color>
+    <color name="label_grape">#D8B4FE</color>
+    <color name="label_teal">#5EEAD4</color>
+    <color name="label_amber">#FDE68A</color>
+
+    <!-- ── Status &amp; Semantic ── -->
+    <color name="green_success">#86EFAC</color>
+    <color name="orange_warning">#FDBA74</color>
+    <color name="red_error">#FCA5A5</color>
+    <color name="blue_info">#93C5FD</color>
+    <color name="yellow_warning">#FEF08A</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+
+    <!-- ── Bottom Navigation ── -->
+    <color name="nav_unselected">#4E5D78</color>
+
+    <!-- ── Accent ── -->
+    <color name="accent_purple">#8B80FF</color>
+    <color name="accent_purple_chip">#2A2158</color>
+    <color name="accent_blue_chip">#0F1E30</color>
+
+    <!-- ── Splash / Login ── -->
+    <color name="splash_bg">#0B0E17</color>
+    <color name="splash_title">#F2F5FF</color>
+    <color name="splash_subtitle">#8B80FF</color>
+    <color name="login_bg_top">#111D35</color>
+    <color name="login_form_bg">#161B2A</color>
+    <color name="login_accent">#8B80FF</color>
+    <color name="login_subtitle_text">#A1A9C3</color>
+    <color name="login_card_stroke">#2D3648</color>
+    <color name="login_hint">#4E5D78</color>
+    <color name="login_label">#F2F5FF</color>
+    <color name="login_btn_bg">#8B80FF</color>
+
+    <!-- ── Status Chips ── -->
+    <color name="chip_present_bg">#0F2018</color>
+    <color name="chip_absent_bg">#280F14</color>
+
+    <!-- ── Item Colors ── -->
+    <color name="item_delete_icon">#FCA5A5</color>
+    <color name="item_muted_text">#64748B</color>
+    <color name="item_secondary_text">#6B7A99</color>
+    <color name="item_pending_text">#4E5D78</color>
+    <color name="item_warm_bg">#1A1820</color>
+    <color name="item_purple_chip_bg">#1E1B3E</color>
+    <color name="item_online_dot">#4ADE80</color>
+
+    <!-- ── Danger Button ── -->
+    <color name="btn_danger_text">#FCA5A5</color>
+    <color name="btn_danger_bg">#280F14</color>
+
+    <!-- ── Field Labels ── -->
+    <color name="field_label_warm">#A1A9C3</color>
+    <color name="field_label_blue">#93C5FD</color>
+
+    <!-- ── Rapor ── -->
+    <color name="rapor_divider">#2D3648</color>
+
+    <!-- ── Offline Banner ── -->
+    <color name="offline_bg">#280F14</color>
+    <color name="offline_text">#FCA5A5</color>
+
+    <!-- ── CBT / Quiz ── -->
+    <color name="cbt_header_bg">#12153A</color>
+    <color name="cbt_header_text">#B0A8FF</color>
+    <color name="cbt_answer_chip">#222939</color>
+
+    <!-- ── Materi ── -->
+    <color name="materi_semangat">#8B80FF</color>
+
+    <!-- ── Tugas ── -->
+    <color name="tugas_brown_text">#FDBA74</color>
+
+    <!-- ── Jadwal ── -->
+    <color name="jadwal_badge_bg">#33FFFFFF</color>
+
+</resources>

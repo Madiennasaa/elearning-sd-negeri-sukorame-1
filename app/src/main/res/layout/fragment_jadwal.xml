@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bg_light">
+
+    <!-- HEADER -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="160dp"
+        android:background="@color/primary_purple">
+
+        <View
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_gravity="top|end"
+            android:layout_marginTop="-28dp"
+            android:layout_marginEnd="-28dp"
+            android:background="@drawable/bg_circle_light_blue"
+            android:alpha="0.15"/>
+
+        <View
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            android:layout_gravity="bottom|start"
+            android:layout_marginStart="-20dp"
+            android:layout_marginBottom="-20dp"
+            android:background="@drawable/bg_circle_pink"
+            android:alpha="0.18"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center_vertical"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"
+            android:paddingTop="20dp"
+            android:paddingBottom="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:id="@+id/ivBack"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="-12dp"
+                    android:padding="8dp"
+                    android:src="@drawable/ic_back"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    app:tint="@color/on_header_title" />
+
+                <FrameLayout
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_marginStart="4dp"
+                    android:background="@drawable/bg_icon_box_white"
+                    android:backgroundTint="@color/icon_box_purple_tint">
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_calendar"
+                        app:tint="@color/primary_purple"/>
+                </FrameLayout>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Jadwal Pelajaran"
+                android:textColor="@color/on_header_title"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:fontFamily="sans-serif-rounded"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Lihat jadwal belajarmu hari ini"
+                android:textColor="@color/admin_header_chip"
+                android:textSize="12sp"
+                android:fontFamily="sans-serif-rounded"/>
+
+        </LinearLayout>
+    </FrameLayout>
+
+    <!-- TAB HARI — menempel ke header -->
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabDays"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="@color/primary_purple"
+        app:tabTextColor="@color/jadwal_badge_bg"
+        app:tabSelectedTextColor="@color/on_header_title"
+        app:tabIndicatorColor="@color/on_header_title"
+        app:tabIndicatorHeight="3dp"
+        app:tabTextAppearance="@style/TabTextAppearance"
+        app:tabMode="scrollable"
+        app:tabPaddingStart="4dp"
+        app:tabPaddingEnd="4dp">
+
+        <com.google.android.material.tabs.TabItem android:text="Senin"/>
+        <com.google.android.material.tabs.TabItem android:text="Selasa"/>
+        <com.google.android.material.tabs.TabItem android:text="Rabu"/>
+        <com.google.android.material.tabs.TabItem android:text="Kamis"/>
+        <com.google.android.material.tabs.TabItem android:text="Jumat"/>
+        <com.google.android.material.tabs.TabItem android:text="Sabtu"/>
+    </com.google.android.material.tabs.TabLayout>
+
+    <!-- Sambungan lengkung dari header ke body -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:background="@color/primary_purple"/>
+
+    <!-- Konten putih dengan rounded top -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:background="@drawable/bg_body_rounded_top"
+        android:layout_marginTop="-20dp">
+
+        <!-- Label hari aktif -->
+        <TextView
+            android:id="@+id/tvHariAktif"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="8dp"
+            android:text="📅  Senin"
+            android:textColor="@color/text_dark"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-rounded"/>
+
+        <!-- Empty state -->
+        <LinearLayout
+            android:id="@+id/layoutEmptyJadwal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:paddingTop="48dp"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🎉"
+                android:textSize="48sp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Tidak ada jadwal hari ini"
+                android:textColor="@color/text_dark"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:fontFamily="sans-serif-rounded"/>
+        </LinearLayout>
+
+        <!-- List jadwal -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvJadwal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingHorizontal="16dp"
+                android:paddingBottom="24dp"
+                android:clipToPadding="false"/>
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:visibility="gone"
+                android:indeterminateTint="@color/primary_purple"/>
+        </FrameLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

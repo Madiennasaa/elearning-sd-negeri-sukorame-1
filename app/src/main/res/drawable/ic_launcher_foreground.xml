@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Ikon launcher SD Negeri Sukorame 1 – tema buku + bintang pendidikan
+    Foreground: putih, dirancang untuk background ungu #6C63FF
+    Viewport 108x108 (adaptive icon safe zone: 72x72 center)
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Buku besar (cover belakang) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillAlpha="0.85"
+        android:pathData="M28,32 L28,78 Q28,80 30,80 L52,80 L52,30 L30,30 Q28,30 28,32 Z" />
+
+    <!-- Buku besar (cover depan) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M56,30 L56,80 L78,80 Q80,80 80,78 L80,32 Q80,30 78,30 Z" />
+
+    <!-- Pembatas tengah buku (spine) -->
+    <path
+        android:fillColor="#C0BBFF"
+        android:pathData="M52,30 L56,30 L56,80 L52,80 Z" />
+
+    <!-- Garis halaman kiri -->
+    <path
+        android:fillColor="#9B94FF"
+        android:strokeWidth="0"
+        android:pathData="M34,40 L50,40 L50,42 L34,42 Z" />
+    <path
+        android:fillColor="#9B94FF"
+        android:pathData="M34,47 L50,47 L50,49 L34,49 Z" />
+    <path
+        android:fillColor="#9B94FF"
+        android:pathData="M34,54 L50,54 L50,56 L34,56 Z" />
+    <path
+        android:fillColor="#9B94FF"
+        android:pathData="M34,61 L44,61 L44,63 L34,63 Z" />
+
+    <!-- Garis halaman kanan -->
+    <path
+        android:fillColor="#9B94FF"
+        android:pathData="M58,40 L74,40 L74,42 L58,42 Z" />
+    <path
+        android:fillColor="#9B94FF"
+        android:pathData="M58,47 L74,47 L74,49 L58,49 Z" />
+    <path
+        android:fillColor="#9B94FF"
+        android:pathData="M58,54 L74,54 L74,56 L58,56 Z" />
+    <path
+        android:fillColor="#9B94FF"
+        android:pathData="M58,61 L68,61 L68,63 L58,63 Z" />
+
+    <!-- Bintang di atas buku (simbol prestasi) -->
+    <path
+        android:fillColor="#FFD700"
+        android:pathData="M54,18 L55.8,23.5 L61.6,23.5 L56.9,26.9 L58.7,32.4 L54,29 L49.3,32.4 L51.1,26.9 L46.4,23.5 L52.2,23.5 Z" />
+</vector>

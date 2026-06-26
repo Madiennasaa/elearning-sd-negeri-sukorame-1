@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Reusable purple header – include di setiap fragment dengan tools:layout_editor_absoluteX -->
+<!-- Usage: <include layout="@layout/layout_header_purple" android:id="@+id/header" /> -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="100dp"
+    android:background="@color/primary_purple">
+
+    <!-- Dekor lingkaran kanan atas -->
+    <View
+        android:layout_width="130dp"
+        android:layout_height="130dp"
+        android:layout_gravity="top|end"
+        android:layout_marginTop="-30dp"
+        android:layout_marginEnd="-30dp"
+        android:background="@drawable/bg_circle_light_blue"
+        android:alpha="0.12" />
+
+    <!-- Tombol back (default: GONE – tampilkan via kode jika perlu) -->
+    <ImageView
+        android:id="@+id/ivBack"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="center_vertical|start"
+        android:layout_marginStart="16dp"
+        android:padding="8dp"
+        android:src="@drawable/ic_back"
+        android:visibility="gone"
+        android:contentDescription="Kembali" />
+
+    <!-- Judul halaman -->
+    <TextView
+        android:id="@+id/tvHeaderTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical|start"
+        android:layout_marginStart="60dp"
+        android:text="Judul"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <!-- Sub-judul opsional -->
+    <TextView
+        android:id="@+id/tvHeaderSubtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|start"
+        android:layout_marginStart="60dp"
+        android:layout_marginBottom="14dp"
+        android:text=""
+        android:textColor="@color/splash_subtitle"
+        android:textSize="12sp"
+        android:visibility="gone" />
+</FrameLayout>

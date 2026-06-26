@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "347056188220",
+    "project_id": "elearning-sd",
+    "storage_bucket": "elearning-sd.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:347056188220:android:b3bd3e8d970b6ce0bf0c39",
+        "android_client_info": {
+          "package_name": "com.polinema.mi.elearning_sd_negeri_sukorame_1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDf52oRER5VL9L-0r_UNGLmcYVO9-qOUoU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

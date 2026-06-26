@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Form Input Guru"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        android:layout_marginBottom="16dp"/>
+
+    <EditText
+        android:id="@+id/etNamaGuruForm"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Nama Lengkap Guru"
+        android:inputType="textPersonName"
+        android:layout_marginBottom="12dp"/>
+
+    <EditText
+        android:id="@+id/etNipGuruForm"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Nomor Induk Pegawai (NIP)"
+        android:inputType="number"
+        android:layout_marginBottom="12dp"/>
+
+    <EditText
+        android:id="@+id/etNoHpGuruForm"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Nomor HP / WhatsApp"
+        android:inputType="phone"
+        android:layout_marginBottom="12dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Kategori Guru"
+        android:textSize="12sp"
+        android:layout_marginTop="8dp"/>
+
+    <Spinner
+        android:id="@+id/spJenisGuru"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:entries="@array/kategori_guru_array"
+        android:layout_marginBottom="12dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Pilih Kelas (Wali Kelas / Pengajar)"
+        android:textSize="12sp"
+        android:layout_marginTop="8dp"/>
+
+    <Spinner
+        android:id="@+id/spKelasGuru"
+        android:layout_width="match_parent"
+        android:layout_height="48dp" />
+
+</LinearLayout>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Background adaptive icon: warna ungu primer SD Negeri Sukorame 1 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <gradient
+        android:startColor="#6C63FF"
+        android:centerColor="#5A52E8"
+        android:endColor="#4B44CC"
+        android:angle="135"
+        android:type="linear" />
+</shape>

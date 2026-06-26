@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SIMAS – SDN Sukorame 1</string>
+    <string name="app_name_short">SIMAS</string>
+    <string name="school_name">SD Negeri Sukorame 1 Kediri</string>
+    <string name="offline_message">Tidak ada koneksi internet. Periksa jaringan Anda.</string>
+    <string name="server_timeout">Server tidak merespons. Coba lagi nanti.</string>
+    <string name="server_unreachable">Server tidak dapat dihubungi. Periksa URL API di pengaturan.</string>
+    <string-array name="kategori_guru_array">
+        <item>Umum (Guru Kelas)</item>
+        <item>Khusus (Guru Mapel)</item>
+    </string-array>
+</resources>

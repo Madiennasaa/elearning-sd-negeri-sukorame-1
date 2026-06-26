@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <Spinner
+        android:id="@+id/spinnerMapelTugas"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"/>
+
+    <EditText
+        android:id="@+id/etJudulTugas"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Judul Tugas *"
+        android:inputType="text"
+        android:layout_marginBottom="12dp"/>
+
+    <EditText
+        android:id="@+id/etDeadlineTugas"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Deadline (contoh: 2024-12-31)"
+        android:inputType="text"
+        android:layout_marginBottom="12dp"/>
+
+    <EditText
+        android:id="@+id/etDurasiTugas"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Durasi (menit, default 60)"
+        android:inputType="number"/>
+
+</LinearLayout>

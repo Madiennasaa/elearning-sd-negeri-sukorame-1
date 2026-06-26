@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="0dp"
+    app:cardBackgroundColor="@color/card_bg">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- ── COLLAPSED ROW ── -->
+        <LinearLayout
+            android:id="@+id/rowCollapsed"
+            android:layout_width="match_parent"
+            android:layout_height="72dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="12dp"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true">
+
+            <!-- Left color strip -->
+            <View
+                android:id="@+id/stripUrgency"
+                android:layout_width="6dp"
+                android:layout_height="40dp"
+                android:background="@drawable/bg_strip_rounded"/>
+
+            <!-- Emoji icon -->
+            <TextView
+                android:id="@+id/tvEmoji"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_marginStart="12dp"
+                android:gravity="center"
+                android:text="📝"
+                android:textSize="22sp"
+                android:background="@drawable/bg_icon_box_white"/>
+
+            <!-- Text group -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="12dp">
+
+                <TextView
+                    android:id="@+id/tvJudul"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Matematika: Penjumlahan"
+                    android:textColor="@color/text_dark"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:fontFamily="sans-serif-rounded"/>
+
+                <TextView
+                    android:id="@+id/tvDeadlinePill"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Besok, 25 Mei"
+                    android:textColor="@color/label_orange"
+                    android:textSize="12sp"
+                    android:fontFamily="sans-serif-rounded"/>
+            </LinearLayout>
+
+            <!-- Badge BARU -->
+            <TextView
+                android:id="@+id/tvBadgeBaru"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="6dp"
+                android:text="BARU!"
+                android:textColor="@color/on_header_title"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:background="@drawable/bg_badge_new"
+                android:paddingHorizontal="7dp"
+                android:paddingVertical="3dp"
+                android:visibility="gone"
+                android:fontFamily="sans-serif-rounded"/>
+
+            <!-- Expand arrow -->
+            <ImageView
+                android:id="@+id/ivArrow"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@android:drawable/arrow_down_float"
+                android:layout_marginStart="4dp"/>
+
+        </LinearLayout>
+
+        <!-- ── EXPANDED DETAIL ── -->
+        <LinearLayout
+            android:id="@+id/layoutExpanded"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="20dp"
+            android:paddingBottom="16dp"
+            android:visibility="gone">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/item_warm_bg"
+                android:layout_marginBottom="12dp"/>
+
+            <!-- Deskripsi -->
+            <TextView
+                android:id="@+id/tvDeskripsi"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Kerjakan soal nomor 1 sampai 10 di buku tulis."
+                android:textColor="@color/tugas_brown_text"
+                android:textSize="14sp"
+                android:lineSpacingExtra="4dp"
+                android:fontFamily="sans-serif-rounded"/>
+
+            <!-- Deadline row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="12dp"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="📅 "
+                    android:textSize="14sp"/>
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:id="@+id/tvDeadlineFull"
+                    android:text="Deadline: Senin, 26 Mei 2025"
+                    android:textColor="@color/on_header_sub_yellow"
+                    android:textSize="13sp"
+                    android:fontFamily="sans-serif-rounded"/>
+
+                <!-- Sisa hari badge -->
+                <TextView
+                    android:id="@+id/tvSisaHari"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="2 hari lagi"
+                    android:textColor="@color/on_header_title"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:background="@drawable/bg_badge_days"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="4dp"
+                    android:fontFamily="sans-serif-rounded"/>
+            </LinearLayout>
+
+            <!-- CTA Button -->
+            <Button
+                android:id="@+id/btnKerjakan"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="16dp"
+                android:text="✏️  Kerjakan Sekarang!"
+                android:textColor="@color/on_header_title"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:fontFamily="sans-serif-rounded"
+                android:background="@drawable/bg_btn_orange"
+                android:stateListAnimator="@null"/>
+
+        </LinearLayout>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

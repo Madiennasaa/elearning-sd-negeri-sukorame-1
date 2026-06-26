@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="2dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:gravity="center_vertical">
+
+        <!-- Avatar / Inisial -->
+        <TextView
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:text="S"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/on_header_title"
+            android:gravity="center"
+            android:background="@drawable/bg_circle_blue"/>
+
+        <!-- Info Siswa -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginStart="12dp">
+
+            <TextView
+                android:id="@+id/tvNamaSiswaRapor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Nama Siswa"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_dark"/>
+
+            <TextView
+                android:id="@+id/tvNisnSiswaRapor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="NISN: -"
+                android:textSize="12sp"
+                android:textColor="@color/item_muted_text"
+                android:layout_marginTop="2dp"/>
+
+            <TextView
+                android:id="@+id/tvStatusRapor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Belum diisi"
+                android:textSize="12sp"
+                android:textColor="@color/text_gray"
+                android:layout_marginTop="4dp"/>
+
+        </LinearLayout>
+
+        <!-- Tombol Input -->
+        <Button
+            android:id="@+id/btnInputRapor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Input"
+            android:textSize="12sp"
+            android:layout_marginStart="8dp"
+            style="@style/Widget.MaterialComponents.Button"/>
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>
