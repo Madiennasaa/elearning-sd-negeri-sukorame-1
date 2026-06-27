@@ -41,6 +41,13 @@
         <item name="android:itemBackground">@color/card_bg</item>
     </style>
 
+    <!-- Custom theme for SearchView in night mode to keep text visible on white background -->
+    <style name="SearchViewTheme" parent="Widget.AppCompat.SearchView">
+        <item name="android:editTextColor">#1A1A2E</item>
+        <item name="android:textColorHint">#9E9EB8</item>
+        <item name="colorControlNormal">#1A1A2E</item>
+    </style>
+
     <style name="Theme.Elearning.Splash" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="android:statusBarColor">@color/bg_light</item>
         <item name="android:navigationBarColor">@color/bg_light</item>
