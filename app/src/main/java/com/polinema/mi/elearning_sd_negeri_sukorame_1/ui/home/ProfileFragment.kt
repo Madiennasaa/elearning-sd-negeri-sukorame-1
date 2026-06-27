@@ -48,7 +48,12 @@ class ProfileFragment : Fragment() {
         }
 
         binding.btnDeleteAccount.setOnClickListener {
-            deleteMyAccount()
+            val currentUser = sessionManager.getUser()
+            if (currentUser?.role == "admin") {
+                Toast.makeText(requireContext(), "Admin tidak boleh menghapus akun sendiri!", Toast.LENGTH_SHORT).show()
+            } else {
+                deleteMyAccount()
+            }
         }
     }
 
@@ -117,6 +122,13 @@ class ProfileFragment : Fragment() {
         binding.tvRole.text = user?.role?.replace("_", " ")?.lowercase()?.replaceFirstChar { it.uppercase() } ?: "Role"
         binding.tvEmail.text = user?.email ?: "-"
         binding.tvPhone.text = user?.noHp ?: "-"
+
+        // Restriction: Hide delete button if the user is an admin
+        if (user?.role == "admin") {
+            binding.btnDeleteAccount.visibility = View.GONE
+        } else {
+            binding.btnDeleteAccount.visibility = View.VISIBLE
+        }
     }
 
     override fun onDestroyView() {
