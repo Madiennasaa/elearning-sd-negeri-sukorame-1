@@ -17,7 +17,7 @@
             android:layout_height="190dp"
             android:background="@color/primary_purple">
 
-            <!-- Dekorasi lingkaran — reuse drawable yang ada -->
+            <!-- Dekorasi lingkaran -->
             <View
                 android:layout_width="130dp"
                 android:layout_height="130dp"
@@ -65,7 +65,7 @@
                     android:textStyle="bold"
                     android:fontFamily="sans-serif-rounded"/>
 
-                <!-- Tombol jadwal — reuse bg_pill_white_alpha -->
+                <!-- Tombol jadwal -->
                 <FrameLayout
                     android:id="@+id/btnJadwalGuru"
                     android:layout_width="wrap_content"
@@ -143,7 +143,6 @@
                         android:gravity="center"
                         android:orientation="vertical"
                         android:padding="12dp">
-                        <!-- icon box — reuse bg_icon_box_white dengan tint biru -->
                         <FrameLayout
                             android:layout_width="48dp"
                             android:layout_height="48dp"
@@ -489,7 +488,6 @@
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
             </LinearLayout>
-
         </LinearLayout>
     </LinearLayout>
 </ScrollView>

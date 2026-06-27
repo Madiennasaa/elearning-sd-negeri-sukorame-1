@@ -73,7 +73,7 @@ class AdminManageUserFragment : Fragment() {
                 adapter.updateList(allUsers)
             }
             .addOnFailureListener {
-                Toast.makeText(requireContext(), "Gagal memuat user", Toast.LENGTH_SHORT).show()
+                if (isAdded) Toast.makeText(requireContext(), "Gagal memuat user", Toast.LENGTH_SHORT).show()
             }
     }
 
@@ -84,20 +84,43 @@ class AdminManageUserFragment : Fragment() {
     }
 
     private fun showRoleSelectionDialog() {
-        val roles = listOf("Admin", "Guru", "Siswa", "Wali Murid", "Kepala Sekolah")
+        // Only allow adding these roles (Principal included)
+        val roleDisplay = listOf("Guru", "Siswa", "Wali Murid", "Kepala Sekolah")
+        val roleValues = listOf("guru", "siswa", "wali_murid", "kepala_sekolah")
+        
         AlertDialog.Builder(requireContext())
             .setTitle("Pilih Role Pengguna Baru")
-            .setItems(roles.toTypedArray()) { _, which ->
-                val selectedRole = roles[which].lowercase().replace(" ", "_")
-                showUserDialog(null, selectedRole)
+            .setItems(roleDisplay.toTypedArray()) { _, which ->
+                showUserDialog(null, roleValues[which])
             }
             .show()
     }
 
+    /**
+     * Logic: Check if there's already a user with role 'kepala_sekolah'
+     */
+    private fun checkKepsekExists(onResult: (Boolean) -> Unit) {
+        db.collection("users")
+            .whereEqualTo("role", "kepala_sekolah")
+            .get()
+            .addOnSuccessListener { snapshot ->
+                onResult(!snapshot.isEmpty)
+            }
+            .addOnFailureListener {
+                onResult(false)
+            }
+    }
+
     private fun showUserDialog(user: User?, forcedRole: String? = null) {
         val isEdit = user != null
-        val roleToUse = (forcedRole ?: user?.role ?: "admin").lowercase()
+        val roleToUse = (forcedRole ?: user?.role ?: "siswa").lowercase()
         
+        // Prevent manual admin creation if somehow triggered
+        if (!isEdit && roleToUse == "admin") {
+            Toast.makeText(requireContext(), "Tidak diizinkan membuat Admin baru", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_user_form, null)
         val etName     = dialogView.findViewById<EditText>(R.id.etNama)
         val etEmail    = dialogView.findViewById<EditText>(R.id.etEmail)
@@ -108,11 +131,9 @@ class AdminManageUserFragment : Fragment() {
         val spinnerKelas = dialogView.findViewById<Spinner>(R.id.spinnerKelas)
         val tvLabelKelas = dialogView.findViewById<TextView>(R.id.tvLabelKelas)
         
-        // Role-Specific Containers
         val layoutGuru  = dialogView.findViewById<LinearLayout>(R.id.layoutGuruFields)
         val layoutSiswa = dialogView.findViewById<LinearLayout>(R.id.layoutSiswaFields)
         
-        // Role-Specific Inputs
         val etNip       = dialogView.findViewById<EditText>(R.id.etNip)
         val spTipeGuru  = dialogView.findViewById<Spinner>(R.id.spinnerTipeGuru)
         val etNisn      = dialogView.findViewById<EditText>(R.id.etNisn)
@@ -186,6 +207,7 @@ class AdminManageUserFragment : Fragment() {
                 val pass  = etPassword.text.toString().trim()
                 val noHp  = etNoHp.text.toString().trim()
                 val nip   = etNip.text.toString().trim()
+                val nisn  = etNisn.text.toString().trim()
                 val tipeGuru = spTipeGuru.selectedItem.toString()
                 val kIdx  = spinnerKelas.selectedItemPosition
                 val kId   = if (kIdx > 0) allKelas[kIdx - 1].id else null
@@ -206,56 +228,17 @@ class AdminManageUserFragment : Fragment() {
                     "idSiswa" to if (roleToUse == "siswa") (user?.idSiswa ?: "") else null
                 )
 
-                if (isEdit) {
-                    db.collection("users").document(user!!.uid).update(userData)
-                        .addOnSuccessListener {
-                            if (roleToUse == "guru") {
-                                val gId = user.idGuru ?: user.uid
-                                db.collection("guru").document(gId).set(hashMapOf(
-                                    "id" to gId, "userId" to user.uid, 
-                                    "nip" to nip, "tipeGuru" to tipeGuru
-                                ))
-                                if (kId != null) db.collection("kelas").document(kId).update("guruId", gId)
-                            } else if (roleToUse == "siswa") {
-                                val sId = user.idSiswa ?: user.uid
-                                db.collection("siswa").document(sId).set(hashMapOf(
-                                    "id" to sId, "userId" to user.uid, "namaLengkap" to name,
-                                    "nisn" to etNisn.text.toString(), "kelasId" to kId,
-                                    "jenisKelamin" to spGender.selectedItem.toString(), "tanggalLahir" to etTglLahir.text.toString()
-                                ))
-                            }
-                            Toast.makeText(context, "Berhasil diperbarui", Toast.LENGTH_SHORT).show()
-                            loadUsers()
+                // UNIQUE CONSTRAINT FOR PRINCIPAL
+                if (roleToUse == "kepala_sekolah" && !isEdit) {
+                    checkKepsekExists { exists ->
+                        if (exists) {
+                            Toast.makeText(requireContext(), "Kepala Sekolah sudah ada di dalam sistem!", Toast.LENGTH_SHORT).show()
+                        } else {
+                            executeSaveUser(user, userData, isEdit, email, pass, nip, nisn, tipeGuru, kId, roleToUse, spGender, etTglLahir)
                         }
+                    }
                 } else {
-                    secondaryAuth.createUserWithEmailAndPassword(email, pass)
-                        .addOnSuccessListener { authResult ->
-                            val newUid = authResult.user?.uid ?: ""
-                            userData["uid"] = newUid
-                            userData["idGuru"] = if (roleToUse == "guru") newUid else null
-                            userData["idSiswa"] = if (roleToUse == "siswa") newUid else null
-                            
-                            db.collection("users").document(newUid).set(userData)
-                                .addOnSuccessListener {
-                                    if (roleToUse == "guru") {
-                                        db.collection("guru").document(newUid).set(hashMapOf(
-                                            "id" to newUid, "userId" to newUid, 
-                                            "nip" to nip, "tipeGuru" to tipeGuru
-                                        ))
-                                        if (kId != null) db.collection("kelas").document(kId).update("guruId", newUid)
-                                    } else if (roleToUse == "siswa") {
-                                        db.collection("siswa").document(newUid).set(hashMapOf(
-                                            "id" to newUid, "userId" to newUid, "namaLengkap" to name,
-                                            "nisn" to etNisn.text.toString(), "kelasId" to kId,
-                                            "jenisKelamin" to spGender.selectedItem.toString(), "tanggalLahir" to etTglLahir.text.toString()
-                                        ))
-                                    }
-                                    Toast.makeText(context, "User $roleToUse berhasil dibuat!", Toast.LENGTH_SHORT).show()
-                                    secondaryAuth.signOut()
-                                    loadUsers()
-                                }
-                        }
-                        .addOnFailureListener { e -> Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_LONG).show() }
+                    executeSaveUser(user, userData, isEdit, email, pass, nip, nisn, tipeGuru, kId, roleToUse, spGender, etTglLahir)
                 }
             }
             .setNeutralButton(if(isEdit) "Reset Password" else null) { _, _ ->
@@ -270,6 +253,73 @@ class AdminManageUserFragment : Fragment() {
                 }
             }
             .setNegativeButton("Batal", null).show()
+    }
+
+    private fun executeSaveUser(
+        user: User?,
+        userData: MutableMap<String, Any?>,
+        isEdit: Boolean,
+        email: String,
+        pass: String,
+        nip: String,
+        nisn: String,
+        tipeGuru: String,
+        kId: String?,
+        roleToUse: String,
+        spGender: Spinner,
+        etTglLahir: EditText
+    ) {
+        if (isEdit) {
+            db.collection("users").document(user!!.uid).update(userData)
+                .addOnSuccessListener {
+                    handleRoleSync(user.uid, roleToUse, userData, nip, nisn, tipeGuru, kId, spGender, etTglLahir)
+                    Toast.makeText(context, "Berhasil diperbarui", Toast.LENGTH_SHORT).show()
+                    loadUsers()
+                }
+        } else {
+            secondaryAuth.createUserWithEmailAndPassword(email, pass)
+                .addOnSuccessListener { authResult ->
+                    val newUid = authResult.user?.uid ?: ""
+                    userData["uid"] = newUid
+                    userData["idGuru"] = if (roleToUse == "guru") newUid else null
+                    userData["idSiswa"] = if (roleToUse == "siswa") newUid else null
+                    
+                    db.collection("users").document(newUid).set(userData)
+                        .addOnSuccessListener {
+                            handleRoleSync(newUid, roleToUse, userData, nip, nisn, tipeGuru, kId, spGender, etTglLahir)
+                            Toast.makeText(context, "User $roleToUse berhasil dibuat!", Toast.LENGTH_SHORT).show()
+                            secondaryAuth.signOut()
+                            loadUsers()
+                        }
+                }
+                .addOnFailureListener { e -> Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_LONG).show() }
+        }
+    }
+
+    private fun handleRoleSync(
+        uid: String,
+        role: String,
+        userData: Map<String, Any?>,
+        nip: String,
+        nisn: String,
+        tipeGuru: String,
+        kId: String?,
+        spGender: Spinner,
+        etTglLahir: EditText
+    ) {
+        if (role == "guru") {
+            db.collection("guru").document(uid).set(hashMapOf(
+                "id" to uid, "userId" to uid, 
+                "nip" to nip, "tipeGuru" to tipeGuru
+            ))
+            if (kId != null) db.collection("kelas").document(kId).update("guruId", uid)
+        } else if (role == "siswa") {
+            db.collection("siswa").document(uid).set(hashMapOf(
+                "id" to uid, "userId" to uid, "namaLengkap" to userData["name"],
+                "nisn" to nisn, "kelasId" to kId,
+                "jenisKelamin" to spGender.selectedItem.toString(), "tanggalLahir" to etTglLahir.text.toString()
+            ))
+        }
     }
 
     private fun confirmDelete(user: User) {
