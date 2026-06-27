@@ -105,21 +105,64 @@ class AdminManageJadwalFragment : Fragment() {
     }
 
     private fun simpanJadwal() {
-        val jamMulai  = binding.etJamMulai.text.toString().trim()
+        val jamMulai = binding.etJamMulai.text.toString().trim()
         val jamSelesai = binding.etJamSelesai.text.toString().trim()
+        
         if (jamMulai.isEmpty() || jamSelesai.isEmpty()) {
             Toast.makeText(requireContext(), "Jam harus diisi", Toast.LENGTH_SHORT).show()
             return
         }
+        
         if (guruList.isEmpty() || kelasList.isEmpty() || mapelList.isEmpty()) {
             Toast.makeText(requireContext(), "Data master belum dimuat", Toast.LENGTH_SHORT).show()
             return
         }
-        
+
         val selectedGuru = guruList[binding.spinnerGuru.selectedItemPosition]
         val selectedKelas = kelasList[binding.spinnerKelas.selectedItemPosition]
         val selectedMapel = mapelList[binding.spinnerMapel.selectedItemPosition]
-        
+        val selectedHari = hariList[binding.spinnerHari.selectedItemPosition]
+
+        // --- VALIDASI BENTROK JADWAL (ASYNCHRONOUS) ---
+        db.collection("jadwal")
+            .whereEqualTo("hari", selectedHari)
+            .whereEqualTo("guruId", selectedGuru.uid)
+            .get()
+            .addOnSuccessListener { snapshot ->
+                var isBentrok = false
+                
+                for (doc in snapshot.documents) {
+                    val existingMulai = doc.getString("waktuMulai") ?: ""
+                    val existingSelesai = doc.getString("waktuSelesai") ?: ""
+                    
+                    // Logika Overlap: (StartA < EndB) && (EndA > StartB)
+                    // Menggunakan pembandingan String untuk format HH:mm (e.g. "07:00" < "08:00")
+                    if (jamMulai < existingSelesai && jamSelesai > existingMulai) {
+                        isBentrok = true
+                        break
+                    }
+                }
+
+                if (isBentrok) {
+                    Toast.makeText(requireContext(), "Guru ini sudah memiliki jadwal mengajar di hari dan jam tersebut!", Toast.LENGTH_LONG).show()
+                } else {
+                    // Jika tidak bentrok, eksekusi penyimpanan
+                    executeInsertJadwal(jamMulai, jamSelesai, selectedGuru, selectedKelas, selectedMapel, selectedHari)
+                }
+            }
+            .addOnFailureListener {
+                Toast.makeText(requireContext(), "Gagal melakukan validasi jadwal", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun executeInsertJadwal(
+        jamMulai: String,
+        jamSelesai: String,
+        selectedGuru: com.polinema.mi.elearning_sd_negeri_sukorame_1.data.model.User,
+        selectedKelas: Kelas,
+        selectedMapel: MataPelajaranData,
+        selectedHari: String
+    ) {
         val data = hashMapOf(
             "guruId"      to selectedGuru.uid,
             "namaGuru"    to (selectedGuru.name ?: "Guru"),
@@ -127,7 +170,7 @@ class AdminManageJadwalFragment : Fragment() {
             "namaKelas"   to (selectedKelas.namaKelas ?: "-"),
             "mapelId"     to selectedMapel.id,
             "namaMapel"   to (selectedMapel.nama ?: "Mapel"),
-            "hari"        to hariList[binding.spinnerHari.selectedItemPosition],
+            "hari"        to selectedHari,
             "waktuMulai"   to jamMulai,
             "waktuSelesai" to jamSelesai,
             "tahunAjaran" to "2024/2025"
