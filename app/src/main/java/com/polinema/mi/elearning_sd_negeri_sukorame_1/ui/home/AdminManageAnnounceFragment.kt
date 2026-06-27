@@ -29,6 +29,12 @@ class AdminManageAnnounceFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // FUNGSI TOMBOL KEMBALI
+        binding.btnBack.setOnClickListener {
+            parentFragmentManager.popBackStack()
+        }
+
         adapter = AnnounceAdapter(list, { p -> showDialog(p) }, { p -> confirmDelete(p) })
         binding.rvAnnounce.layoutManager = LinearLayoutManager(requireContext())
         binding.rvAnnounce.adapter = adapter

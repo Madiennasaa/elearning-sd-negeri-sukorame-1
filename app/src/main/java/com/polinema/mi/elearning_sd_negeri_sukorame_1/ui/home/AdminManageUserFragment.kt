@@ -28,7 +28,7 @@ class AdminManageUserFragment : Fragment() {
     private lateinit var adapter: UserAdapter
     private val db = FirebaseFirestore.getInstance()
 
-    // State to track if Principal is already in the system
+    // Logika Dinamis: Status keberadaan Kepala Sekolah
     private var isKepsekRegistered = false
 
     // Secondary Auth to create users without logging out Admin
@@ -51,6 +51,11 @@ class AdminManageUserFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         
+        // FUNGSI TOMBOL KEMBALI
+        binding.btnBack.setOnClickListener {
+            parentFragmentManager.popBackStack()
+        }
+        
         adapter = UserAdapter(allUsers, { u -> showUserDialog(u) }, { u -> confirmDelete(u) })
         binding.rvUsers.layoutManager = LinearLayoutManager(requireContext())
         binding.rvUsers.adapter = adapter
@@ -58,7 +63,7 @@ class AdminManageUserFragment : Fragment() {
         loadUsers()
         loadKelas()
         
-        // Dynamic check for Principal availability
+        // 1. Jalankan pengecekan keberadaan Kepsek secara Async
         checkKepsekAvailability()
 
         binding.searchUser.setOnQueryTextListener(object : androidx.appcompat.widget.SearchView.OnQueryTextListener {
@@ -81,12 +86,10 @@ class AdminManageUserFragment : Fragment() {
                 allUsers.addAll(snapshot.documents.mapNotNull { it.toObject(User::class.java)?.copy(uid = it.id) })
                 adapter.updateList(allUsers)
                 
-                // Also update Principal state when list is refreshed
+                // Refresh status Kepsek setiap kali data dimuat
                 val hasKepsek = allUsers.any { it.role == "kepala_sekolah" }
-                if (isKepsekRegistered != hasKepsek) {
-                    isKepsekRegistered = hasKepsek
-                    setupAddButton()
-                }
+                isKepsekRegistered = hasKepsek
+                setupAddButton()
             }
             .addOnFailureListener {
                 if (isAdded) Toast.makeText(requireContext(), "Gagal memuat user", Toast.LENGTH_SHORT).show()
@@ -100,7 +103,7 @@ class AdminManageUserFragment : Fragment() {
     }
 
     /**
-     * Requirement: Async check for Principal in Firestore
+     * Pengecekan Asynchronous untuk ketersediaan role Kepala Sekolah
      */
     private fun checkKepsekAvailability() {
         db.collection("users")
@@ -114,15 +117,14 @@ class AdminManageUserFragment : Fragment() {
     }
 
     /**
-     * Requirement: Manipulate role list dynamically
-     * Admin is permanently excluded from "Add User" list.
+     * Membangun menu pilihan role secara dinamis
      */
     private fun setupAddButton() {
-        // Base roles for adding new users (Admin is excluded)
+        // Daftar role dasar (Tanpa Admin & Kepsek)
         val rolesDisplay = mutableListOf("Guru", "Murid", "Wali Murid")
         val rolesValues = mutableListOf("guru", "siswa", "wali_murid")
 
-        // Add Principal only if not registered
+        // Tambahkan Kepala Sekolah jika belum ada
         if (!isKepsekRegistered) {
             rolesDisplay.add(0, "Kepala Sekolah")
             rolesValues.add(0, "kepala_sekolah")
@@ -154,7 +156,7 @@ class AdminManageUserFragment : Fragment() {
         val isEdit = user != null
         val roleToUse = (forcedRole ?: user?.role ?: "siswa").lowercase()
         
-        // Permanent Block: Prevent Admin creation
+        // Validasi Keamanan: Blokir pembuatan Admin baru
         if (!isEdit && roleToUse == "admin") {
             Toast.makeText(requireContext(), "Anda tidak diizinkan membuat Admin baru!", Toast.LENGTH_SHORT).show()
             return
@@ -179,33 +181,20 @@ class AdminManageUserFragment : Fragment() {
         val spGender    = dialogView.findViewById<Spinner>(R.id.spinnerGender)
         val etTglLahir  = dialogView.findViewById<EditText>(R.id.etTglLahir)
 
-        // Dynamic Role Spinner in Form
-        val dialogRolesValues = mutableListOf<String>()
-        val dialogRolesDisplay = mutableListOf<String>()
+        // MANIPULASI LIST SPINNER DALAM FORM
+        val dialogRolesDisplay = mutableListOf("Guru", "Murid", "Wali Murid")
+        val dialogRolesValues = mutableListOf("guru", "siswa", "wali_murid")
 
-        if (isEdit) {
-            // While editing, show current role and other permissible roles
-            if (user?.role == "admin") {
-                dialogRolesDisplay.add("Admin")
-                dialogRolesValues.add("admin")
-            }
-            
-            dialogRolesDisplay.addAll(listOf("Guru", "Murid", "Wali Murid"))
-            dialogRolesValues.addAll(listOf("guru", "siswa", "wali_murid"))
+        // Tambahkan pilihan 'Admin' hanya jika sedang mengedit user Admin (agar data tidak berubah otomatis)
+        if (isEdit && user?.role == "admin") {
+            dialogRolesDisplay.add(0, "Admin")
+            dialogRolesValues.add(0, "admin")
+        }
 
-            if (user?.role == "kepala_sekolah" || !isKepsekRegistered) {
-                dialogRolesDisplay.add("Kepala Sekolah")
-                dialogRolesValues.add("kepala_sekolah")
-            }
-        } else {
-            // While adding, strictly exclude Admin
-            dialogRolesDisplay.addAll(listOf("Guru", "Murid", "Wali Murid"))
-            dialogRolesValues.addAll(listOf("guru", "siswa", "wali_murid"))
-
-            if (!isKepsekRegistered) {
-                dialogRolesDisplay.add(0, "Kepala Sekolah")
-                dialogRolesValues.add(0, "kepala_sekolah")
-            }
+        // Tambahkan pilihan 'Kepala Sekolah' jika sedang mengedit Kepsek atau jika memang belum ada
+        if (roleToUse == "kepala_sekolah" || !isKepsekRegistered) {
+            dialogRolesDisplay.add("Kepala Sekolah")
+            dialogRolesValues.add("kepala_sekolah")
         }
 
         val roleAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, dialogRolesDisplay)
@@ -236,7 +225,7 @@ class AdminManageUserFragment : Fragment() {
         val rPos = dialogRolesValues.indexOf(roleToUse)
         if (rPos >= 0) spinnerRole.setSelection(rPos)
         
-        // Lock role selection during add to match the selection dialog choice
+        // Kunci Spinner jika mode Tambah (agar mengikuti pilihan dialog awal)
         spinnerRole.isEnabled = isEdit
 
         if (isEdit && user != null) {
@@ -282,7 +271,7 @@ class AdminManageUserFragment : Fragment() {
                 val kIdx  = spinnerKelas.selectedItemPosition
                 val kId   = if (kIdx > 0) allKelas[kIdx - 1].id else null
                 
-                // Get role from spinner
+                // Ambil role terpilih dari Spinner form
                 val selectedRoleValue = dialogRolesValues[spinnerRole.selectedItemPosition]
 
                 if (name.isEmpty() || email.isEmpty() || (!isEdit && pass.isEmpty())) {
@@ -301,27 +290,19 @@ class AdminManageUserFragment : Fragment() {
                     "idSiswa" to if (selectedRoleValue == "siswa") (user?.idSiswa ?: "") else null
                 )
 
-                // Double-Lock Validation
+                // VALIDASI FINAL SEBELUM SIMPAN
                 if (!isEdit) {
                     if (selectedRoleValue == "admin") {
-                        Toast.makeText(context, "Operasi Ditolak: Role Admin dilarang!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Operasi Ditolak: Dilarang membuat Admin baru!", Toast.LENGTH_SHORT).show()
                         return@setPositiveButton
                     }
-                    if (selectedRoleValue == "kepala_sekolah") {
-                        checkKepsekExists { exists ->
-                            if (exists) {
-                                Toast.makeText(requireContext(), "Kepala Sekolah sudah ada di sistem!", Toast.LENGTH_LONG).show()
-                            } else {
-                                executeSaveUser(user, userData, isEdit, email, pass, nip, nisn, tipeGuru, kId, selectedRoleValue, spGender, etTglLahir)
-                            }
-                        }
-                    } else {
-                        executeSaveUser(user, userData, isEdit, email, pass, nip, nisn, tipeGuru, kId, selectedRoleValue, spGender, etTglLahir)
+                    if (selectedRoleValue == "kepala_sekolah" && isKepsekRegistered) {
+                        Toast.makeText(requireContext(), "Kepala Sekolah sudah ada di sistem!", Toast.LENGTH_LONG).show()
+                        return@setPositiveButton
                     }
-                } else {
-                    // Edit mode
-                    executeSaveUser(user, userData, isEdit, email, pass, nip, nisn, tipeGuru, kId, selectedRoleValue, spGender, etTglLahir)
                 }
+                
+                executeSaveUser(user, userData, isEdit, email, pass, nip, nisn, tipeGuru, kId, selectedRoleValue, spGender, etTglLahir)
             }
             .setNeutralButton(if(isEdit) "Reset Password" else null) { _, _ ->
                 if (isEdit && user?.email != null) {

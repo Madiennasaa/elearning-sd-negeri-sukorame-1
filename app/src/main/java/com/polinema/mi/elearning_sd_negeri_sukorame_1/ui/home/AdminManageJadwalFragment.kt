@@ -35,6 +35,11 @@ class AdminManageJadwalFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // FUNGSI TOMBOL KEMBALI
+        binding.btnBack.setOnClickListener {
+            parentFragmentManager.popBackStack()
+        }
+
         adapter = JadwalAdapter(mutableListOf()) { jadwal ->
             AlertDialog.Builder(requireContext())
                 .setTitle("Hapus Jadwal")

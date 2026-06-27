@@ -31,6 +31,12 @@ class AdminManageSiswaFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // FUNGSI TOMBOL KEMBALI
+        binding.btnBack.setOnClickListener {
+            parentFragmentManager.popBackStack()
+        }
+
         adapter = SiswaAdapter(listSiswa, { s -> showSiswaDialog(s) }, { s -> confirmDelete(s) })
         binding.rvSiswa.layoutManager = LinearLayoutManager(requireContext())
         binding.rvSiswa.adapter = adapter

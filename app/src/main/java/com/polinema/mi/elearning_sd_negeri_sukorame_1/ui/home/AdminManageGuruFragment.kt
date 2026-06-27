@@ -29,6 +29,12 @@ class AdminManageGuruFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        
+        // FUNGSI TOMBOL KEMBALI
+        binding.btnBack.setOnClickListener {
+            parentFragmentManager.popBackStack()
+        }
+
         adapter = GuruAdapter(listGuru, { u -> showGuruDialog(u) }, { u -> confirmDelete(u) })
         binding.rvGuru.layoutManager = LinearLayoutManager(requireContext())
         binding.rvGuru.adapter = adapter

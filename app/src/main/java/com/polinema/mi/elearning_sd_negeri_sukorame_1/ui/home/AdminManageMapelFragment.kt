@@ -29,6 +29,12 @@ class AdminManageMapelFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // FUNGSI TOMBOL KEMBALI
+        binding.btnBack.setOnClickListener {
+            parentFragmentManager.popBackStack()
+        }
+
         adapter = MapelAdapter(allMapel, { m -> showMapelDialog(m) }, { m -> confirmDelete(m) })
         binding.rvMapel.layoutManager = LinearLayoutManager(requireContext())
         binding.rvMapel.adapter = adapter
