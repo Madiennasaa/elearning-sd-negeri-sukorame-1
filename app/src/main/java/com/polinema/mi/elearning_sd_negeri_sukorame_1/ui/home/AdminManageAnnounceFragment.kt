@@ -18,7 +18,7 @@ class AdminManageAnnounceFragment : Fragment() {
 
     private var _binding: FragmentAdminManageAnnounceBinding? = null
     private val binding get() = _binding!!
-    private val list = mutableListOf<Pengumuman>()
+    private val listAnnounce = mutableListOf<Pengumuman>()
     private lateinit var adapter: AnnounceAdapter
     private val db = FirebaseFirestore.getInstance()
 
@@ -30,111 +30,108 @@ class AdminManageAnnounceFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // FUNGSI TOMBOL KEMBALI
-        binding.btnBack.setOnClickListener {
-            parentFragmentManager.popBackStack()
-        }
+        binding.btnBack.setOnClickListener { parentFragmentManager.popBackStack() }
 
-        adapter = AnnounceAdapter(list, { p -> showDialog(p) }, { p -> confirmDelete(p) })
+        adapter = AnnounceAdapter(listAnnounce, { p -> showDialog(p) }, { p -> confirmDelete(p) })
         binding.rvAnnounce.layoutManager = LinearLayoutManager(requireContext())
         binding.rvAnnounce.adapter = adapter
+        
         loadData()
         binding.btnAddAnnounce.setOnClickListener { showDialog(null) }
     }
 
     private fun loadData() {
+        // Poin 2: Query pengambilan data dan pemetaan manual untuk memastikan ID sinkron
         db.collection("pengumuman")
             .get()
             .addOnSuccessListener { snapshot ->
                 if (!isAdded) return@addOnSuccessListener
-                val data = snapshot.toObjects(Pengumuman::class.java)
-                list.clear()
-                list.addAll(data)
+                listAnnounce.clear()
+                // Menggunakan mapNotNull dan copy(id = doc.id) agar field id selalu berisi ID dokumen asli
+                val data = snapshot.documents.mapNotNull { doc ->
+                    doc.toObject(Pengumuman::class.java)?.copy(id = doc.id)
+                }
+                listAnnounce.addAll(data)
                 adapter.notifyDataSetChanged()
             }
             .addOnFailureListener {
-                if (!isAdded) return@addOnFailureListener
-                Toast.makeText(requireContext(), "Gagal memuat pengumuman", Toast.LENGTH_SHORT).show()
+                if (isAdded) Toast.makeText(requireContext(), "Gagal memuat pengumuman", Toast.LENGTH_SHORT).show()
             }
     }
 
     private fun showDialog(p: Pengumuman?) {
         val isEdit = p != null
         val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_announce_form, null)
-        val etJudul   = dialogView.findViewById<EditText>(R.id.etJudul)
-        val etIsi     = dialogView.findViewById<EditText>(R.id.etIsi)
+        val etJudul    = dialogView.findViewById<EditText>(R.id.etJudul)
+        val etIsi      = dialogView.findViewById<EditText>(R.id.etIsi)
         val spKategori = dialogView.findViewById<Spinner>(R.id.spinnerKategori)
-        val spUntuk   = dialogView.findViewById<Spinner>(R.id.spinnerUntuk)
+        val spUntuk    = dialogView.findViewById<Spinner>(R.id.spinnerUntuk)
 
         val kategoriList = listOf("Umum", "Akademik", "Keuangan", "Kegiatan")
         val untukList    = listOf("semua", "siswa", "guru", "wali_murid")
         spKategori.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, kategoriList)
         spUntuk.adapter    = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, untukList)
 
-        if (isEdit) {
-            etJudul.setText(p!!.judul)
+        if (isEdit && p != null) {
+            etJudul.setText(p.judul)
             etIsi.setText(p.isi)
-            val ki = kategoriList.indexOf(p.kategori)
-            if (ki >= 0) spKategori.setSelection(ki)
-            // Note: 'untuk' field is not in model but we'll try to find it in Firestore doc if needed
-            // For now, keep it simple.
+            spKategori.setSelection(kategoriList.indexOf(p.kategori).coerceAtLeast(0))
+            spUntuk.setSelection(untukList.indexOf(p.untuk).coerceAtLeast(0))
         }
 
         AlertDialog.Builder(requireContext())
             .setTitle(if (isEdit) "Edit Pengumuman" else "Tambah Pengumuman")
             .setView(dialogView)
-            .setPositiveButton(if (isEdit) "Simpan" else "Tambah") { _, _ ->
+            .setPositiveButton("Simpan") { _, _ ->
                 val judul = etJudul.text.toString().trim()
                 val isi   = etIsi.text.toString().trim()
+                
                 if (judul.isEmpty() || isi.isEmpty()) {
                     Toast.makeText(requireContext(), "Judul dan isi wajib diisi", Toast.LENGTH_SHORT).show()
                     return@setPositiveButton
                 }
+
+                val now = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date())
                 
-                val now = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
-                
-                val data = mutableMapOf(
-                    "judul"    to judul,
-                    "isi"      to isi,
-                    "kategori" to spKategori.selectedItem.toString(),
-                    "untuk"    to spUntuk.selectedItem.toString(),
-                    "status"   to "Aktif",
-                    "tanggal"  to now
+                // Poin 1: Dapatkan reference dokumen (baru atau lama)
+                val docRef = if (isEdit) db.collection("pengumuman").document(p!!.id) 
+                             else db.collection("pengumuman").document()
+
+                // Menyusun objek Pengumuman yang bersih
+                val newPengumuman = Pengumuman(
+                    id = docRef.id, // ID dokumen otomatis dari Firestore
+                    judul = judul,
+                    isi = isi,
+                    kategori = spKategori.selectedItem.toString(),
+                    untuk = spUntuk.selectedItem.toString(),
+                    tanggal = p?.tanggal ?: now,
+                    status = p?.status ?: "Aktif"
                 )
 
-                val task = if (isEdit) {
-                    db.collection("pengumuman").document(p!!.id).update(data as Map<String, Any>)
-                } else {
-                    val newDoc = db.collection("pengumuman").document()
-                    data["id"] = newDoc.id
-                    newDoc.set(data)
-                }
-
-                task.addOnSuccessListener {
-                    if (!isAdded) return@addOnSuccessListener
-                    Toast.makeText(requireContext(), if (isEdit) "Pengumuman diperbarui" else "Pengumuman ditambahkan", Toast.LENGTH_SHORT).show()
-                    loadData()
-                }.addOnFailureListener { e ->
-                    if (!isAdded) return@addOnFailureListener
-                    Toast.makeText(requireContext(), "Gagal menyimpan: ${e.message}", Toast.LENGTH_SHORT).show()
-                }
+                docRef.set(newPengumuman)
+                    .addOnSuccessListener {
+                        if (isAdded) {
+                            Toast.makeText(requireContext(), "Berhasil disimpan", Toast.LENGTH_SHORT).show()
+                            loadData()
+                        }
+                    }
+                    .addOnFailureListener { e ->
+                        if (isAdded) Toast.makeText(requireContext(), "Gagal: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
             }
             .setNegativeButton("Batal", null).show()
     }
 
     private fun confirmDelete(p: Pengumuman) {
         AlertDialog.Builder(requireContext())
-            .setMessage("Hapus \"${p.judul}\"?")
+            .setMessage("Hapus pengumuman \"${p.judul}\"?")
             .setPositiveButton("Hapus") { _, _ ->
                 db.collection("pengumuman").document(p.id).delete()
                     .addOnSuccessListener {
-                        if (!isAdded) return@addOnSuccessListener
-                        Toast.makeText(requireContext(), "Pengumuman dihapus", Toast.LENGTH_SHORT).show()
-                        loadData()
-                    }
-                    .addOnFailureListener { e ->
-                        if (!isAdded) return@addOnFailureListener
-                        Toast.makeText(requireContext(), "Gagal menghapus: ${e.message}", Toast.LENGTH_SHORT).show()
+                        if (isAdded) {
+                            Toast.makeText(requireContext(), "Dihapus", Toast.LENGTH_SHORT).show()
+                            loadData()
+                        }
                     }
             }
             .setNegativeButton("Batal", null).show()
@@ -149,24 +146,19 @@ class AdminManageAnnounceFragment : Fragment() {
     ) : RecyclerView.Adapter<AnnounceAdapter.VH>() {
         inner class VH(v: View) : RecyclerView.ViewHolder(v) {
             val tvJudul: TextView  = v.findViewById(R.id.tvJudul)
-            val tvKategori: TextView = v.findViewById(R.id.tvKategori)
-            val tvStatus: TextView = v.findViewById(R.id.tvStatus)
+            val tvKet: TextView    = v.findViewById(R.id.tvKategori)
             val btnEdit: ImageButton = v.findViewById(R.id.btnEdit)
             val btnDelete: ImageButton = v.findViewById(R.id.btnDelete)
-            val btnToggle: Button = v.findViewById(R.id.btnToggle)
         }
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
             VH(LayoutInflater.from(parent.context).inflate(R.layout.item_announce, parent, false))
         override fun getItemCount() = list.size
         override fun onBindViewHolder(h: VH, pos: Int) {
             val p = list[pos]
-            h.tvJudul.text    = p.judul
-            h.tvKategori.text = p.kategori
-            h.tvStatus.text   = p.tanggal?.take(10) ?: "-"
-            h.btnToggle.text  = "Aktif"
+            h.tvJudul.text = p.judul
+            h.tvKet.text   = "${p.kategori} • Untuk: ${p.untuk} • ${p.tanggal?.take(10)}"
             h.btnEdit.setOnClickListener { onEdit(p) }
             h.btnDelete.setOnClickListener { onDelete(p) }
-            h.btnToggle.setOnClickListener { /* toggle via API jika ada */ }
         }
     }
 }
