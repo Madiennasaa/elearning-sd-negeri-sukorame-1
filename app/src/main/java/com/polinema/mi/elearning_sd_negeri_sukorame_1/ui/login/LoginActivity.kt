@@ -25,7 +25,12 @@ class LoginActivity : AppCompatActivity() {
         setContentView(binding.root)
         sessionManager = SessionManager(this)
 
-        if (sessionManager.isLoggedIn()) { goToHome(); return }
+        if (sessionManager.isLoggedIn()) {
+            // Cek role user yang tersimpan di session untuk redirect otomatis
+            val user = sessionManager.getUser()
+            user?.role?.let { navigateByRole(it) } ?: goToHome() // fallback
+            return
+        }
 
         binding.btnLogin.setOnClickListener {
             val email = binding.etNisn.text.toString().trim()
@@ -42,27 +47,50 @@ class LoginActivity : AppCompatActivity() {
         binding.progressBar.visibility = View.VISIBLE
         binding.btnLogin.isEnabled = false
 
+        // 1. Firebase Auth Login
         auth.signInWithEmailAndPassword(email, password)
             .addOnSuccessListener { result ->
                 val uid = result.user?.uid ?: return@addOnSuccessListener
+
+                // 2. Ambil data profil dari koleksi 'users' satu kali (get)
                 db.collection("users").document(uid).get()
                     .addOnSuccessListener { doc ->
                         val user = doc.toObject(User::class.java)?.copy(uid = uid)
                         if (user != null) {
+                            // Simpan ke session lokal
                             sessionManager.saveUser(user)
                             Toast.makeText(this, "Selamat Datang, ${user.name}!", Toast.LENGTH_SHORT).show()
-                            goToHome()
+
+                            // 3. Logika navigasi berdasarkan ROLE
+                            navigateByRole(user.role ?: "siswa")
                         } else {
-                            showError("Data user tidak ditemukan di Firestore.")
+                            showError("Data profil tidak ditemukan di database.")
                         }
                     }
-                    .addOnFailureListener { showError(it.message ?: "Gagal ambil data user.") }
+                    .addOnFailureListener { showError("Gagal memuat profil: ${it.message}") }
             }
-            .addOnFailureListener { showError(it.message ?: "Login gagal.") }
+            .addOnFailureListener { showError("Email atau Password salah.") }
             .addOnCompleteListener {
                 binding.progressBar.visibility = View.GONE
                 binding.btnLogin.isEnabled = true
             }
+    }
+
+    private fun navigateByRole(role: String) {
+        // Gunakan HomeActivity karena saat ini pusat dashboard ada di sana (via Fragment)
+        // Jika Anda membuat Activity baru (AdminActivity, dsb), ganti HomeActivity::class.java di bawah.
+        val intent = when (role.lowercase()) {
+            "admin"          -> Intent(this, HomeActivity::class.java)
+            "guru"           -> Intent(this, HomeActivity::class.java)
+            "siswa"          -> Intent(this, HomeActivity::class.java)
+            "wali_murid"      -> Intent(this, HomeActivity::class.java)
+            "kepala_sekolah" -> Intent(this, HomeActivity::class.java)
+            else             -> Intent(this, HomeActivity::class.java)
+        }
+
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        finish()
     }
 
     private fun goToHome() {
