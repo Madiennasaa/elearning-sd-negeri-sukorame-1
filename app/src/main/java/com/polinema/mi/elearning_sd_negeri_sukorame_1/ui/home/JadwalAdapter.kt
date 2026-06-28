@@ -11,6 +11,7 @@ import com.polinema.mi.elearning_sd_negeri_sukorame_1.data.model.Jadwal
 
 class JadwalAdapter(
     private val items: MutableList<Jadwal> = mutableListOf(),
+    private val onEditClick: (Jadwal) -> Unit,
     private val onDeleteClick: (Jadwal) -> Unit
 ) : RecyclerView.Adapter<JadwalAdapter.VH>() {
 
@@ -64,6 +65,12 @@ class JadwalAdapter(
             jadwal.waktuSelesai ?: ""
         )
 
+        // Klik untuk Edit
+        holder.itemView.setOnClickListener {
+            onEditClick(jadwal)
+        }
+
+        // Tahan lama untuk Hapus
         holder.itemView.setOnLongClickListener {
             onDeleteClick(jadwal)
             true

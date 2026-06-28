@@ -10,6 +10,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.firestore.FirebaseFirestore
+import com.polinema.mi.elearning_sd_negeri_sukorame_1.R
 import com.polinema.mi.elearning_sd_negeri_sukorame_1.data.model.Kelas
 import com.polinema.mi.elearning_sd_negeri_sukorame_1.data.model.MataPelajaranData
 import com.polinema.mi.elearning_sd_negeri_sukorame_1.data.model.Jadwal
@@ -27,6 +28,8 @@ class AdminManageJadwalFragment : Fragment() {
     private var kelasList = listOf<Kelas>()
     private var mapelList = listOf<MataPelajaranData>()
     private val hariList  = listOf("Senin","Selasa","Rabu","Kamis","Jumat","Sabtu")
+    
+    private var selectedJadwalId: String? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentAdminManageJadwalBinding.inflate(inflater, container, false)
@@ -40,22 +43,11 @@ class AdminManageJadwalFragment : Fragment() {
             parentFragmentManager.popBackStack()
         }
 
-        adapter = JadwalAdapter(mutableListOf()) { jadwal ->
-            AlertDialog.Builder(requireContext())
-                .setTitle("Hapus Jadwal")
-                .setMessage("Yakin hapus jadwal ini?")
-                .setPositiveButton("Hapus") { _, _ ->
-                    db.collection("jadwal").document(jadwal.id).delete()
-                        .addOnSuccessListener {
-                            Toast.makeText(requireContext(), "Dihapus", Toast.LENGTH_SHORT).show()
-                            loadJadwal()
-                        }
-                        .addOnFailureListener {
-                            Toast.makeText(requireContext(), "Gagal hapus", Toast.LENGTH_SHORT).show()
-                        }
-                }
-                .setNegativeButton("Batal", null).show()
-        }
+        adapter = JadwalAdapter(
+            mutableListOf(),
+            onEditClick = { jadwal -> editJadwal(jadwal) },
+            onDeleteClick = { jadwal -> confirmDelete(jadwal) }
+        )
         binding.rvManageJadwal.layoutManager = LinearLayoutManager(requireContext())
         binding.rvManageJadwal.adapter = adapter
 
@@ -103,17 +95,59 @@ class AdminManageJadwalFragment : Fragment() {
             }
     }
 
+    private fun editJadwal(jadwal: Jadwal) {
+        selectedJadwalId = jadwal.id
+        
+        // Populate fields
+        binding.etJamMulai.setText(jadwal.waktuMulai)
+        binding.etJamSelesai.setText(jadwal.waktuSelesai)
+        
+        // Set spinner selections
+        val hariPos = hariList.indexOf(jadwal.hari)
+        if (hariPos >= 0) binding.spinnerHari.setSelection(hariPos)
+        
+        val kelasPos = kelasList.indexOfFirst { it.id == jadwal.kelasId }
+        if (kelasPos >= 0) binding.spinnerKelas.setSelection(kelasPos)
+        
+        val mapelPos = mapelList.indexOfFirst { it.id == jadwal.mapelId }
+        if (mapelPos >= 0) binding.spinnerMapel.setSelection(mapelPos)
+        
+        val guruPos = guruList.indexOfFirst { it.uid == jadwal.guruId }
+        if (guruPos >= 0) binding.spinnerGuru.setSelection(guruPos)
+        
+        binding.btnSimpanJadwal.text = "UPDATE JADWAL"
+        Toast.makeText(requireContext(), "Mode Edit: ${jadwal.namaMapel}", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun confirmDelete(jadwal: Jadwal) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Hapus Jadwal")
+            .setMessage("Yakin ingin menghapus jadwal ${jadwal.namaMapel} di kelas ${jadwal.namaKelas}?")
+            .setPositiveButton("Hapus") { _, _ ->
+                db.collection("jadwal").document(jadwal.id).delete()
+                    .addOnSuccessListener {
+                        Toast.makeText(requireContext(), "Jadwal berhasil dihapus", Toast.LENGTH_SHORT).show()
+                        loadJadwal()
+                    }
+                    .addOnFailureListener {
+                        Toast.makeText(requireContext(), "Gagal menghapus jadwal", Toast.LENGTH_SHORT).show()
+                    }
+            }
+            .setNegativeButton("Batal", null)
+            .show()
+    }
+
     private fun simpanJadwal() {
         val jamMulai = binding.etJamMulai.text.toString().trim()
         val jamSelesai = binding.etJamSelesai.text.toString().trim()
 
         if (jamMulai.isEmpty() || jamSelesai.isEmpty()) {
-            Toast.makeText(requireContext(), "Jam harus diisi", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Harap isi jam mulai dan selesai", Toast.LENGTH_SHORT).show()
             return
         }
 
         if (guruList.isEmpty() || kelasList.isEmpty() || mapelList.isEmpty()) {
-            Toast.makeText(requireContext(), "Data master belum dimuat", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Data master belum lengkap", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -122,31 +156,43 @@ class AdminManageJadwalFragment : Fragment() {
         val selectedMapel = mapelList[binding.spinnerMapel.selectedItemPosition]
         val selectedHari = hariList[binding.spinnerHari.selectedItemPosition]
 
-        // Validasi bentrok
+        // Bug A Fix: Validasi bentrok jadwal (Overlap)
+        // Logika: (start1 < end2) AND (start2 < end1)
         db.collection("jadwal")
             .whereEqualTo("hari", selectedHari)
-            .whereEqualTo("guruId", selectedGuru.uid)
+            .whereEqualTo("kelasId", selectedKelas.id)
             .get()
             .addOnSuccessListener { snapshot ->
                 var isBentrok = false
                 for (doc in snapshot.documents) {
+                    // Kecualikan diri sendiri jika sedang edit
+                    if (selectedJadwalId != null && doc.id == selectedJadwalId) continue
+                    
                     val existingMulai = doc.getString("waktuMulai") ?: ""
                     val existingSelesai = doc.getString("waktuSelesai") ?: ""
-                    if (jamMulai < existingSelesai && jamSelesai > existingMulai) {
+                    
+                    if (jamMulai < existingSelesai && existingMulai < jamSelesai) {
                         isBentrok = true
                         break
                     }
                 }
 
                 if (isBentrok) {
-                    Toast.makeText(requireContext(), "Guru bentrok jadwal!", Toast.LENGTH_LONG).show()
+                    AlertDialog.Builder(requireContext())
+                        .setTitle("Jadwal Bentrok")
+                        .setMessage("Sudah ada mata pelajaran lain di kelas ini pada jam tersebut ($selectedHari).")
+                        .setPositiveButton("OK", null)
+                        .show()
                 } else {
-                    executeInsertJadwal(jamMulai, jamSelesai, selectedGuru, selectedKelas, selectedMapel, selectedHari)
+                    executeSaveJadwal(jamMulai, jamSelesai, selectedGuru, selectedKelas, selectedMapel, selectedHari)
                 }
+            }
+            .addOnFailureListener {
+                Toast.makeText(requireContext(), "Gagal validasi bentrok", Toast.LENGTH_SHORT).show()
             }
     }
 
-    private fun executeInsertJadwal(
+    private fun executeSaveJadwal(
         jamMulai: String,
         jamSelesai: String,
         selectedGuru: User,
@@ -154,12 +200,14 @@ class AdminManageJadwalFragment : Fragment() {
         selectedMapel: MataPelajaranData,
         selectedHari: String
     ) {
-        // 1. Dapatkan referensi dokumen kosong untuk Auto-ID
-        val docRef = db.collection("jadwal").document()
+        val docRef = if (selectedJadwalId == null) {
+            db.collection("jadwal").document()
+        } else {
+            db.collection("jadwal").document(selectedJadwalId!!)
+        }
 
-        // 2. Susun objek Jadwal (Denormalisasi: ID + Nama)
         val newJadwal = Jadwal(
-            id = docRef.id, // Simpan Auto-ID ke field id
+            id = docRef.id,
             kelasId = selectedKelas.id,
             mapelId = selectedMapel.id,
             guruId = selectedGuru.uid,
@@ -171,18 +219,24 @@ class AdminManageJadwalFragment : Fragment() {
             namaKelas = selectedKelas.namaKelas
         )
 
-        // 3. Simpan ke Firestore
         docRef.set(newJadwal)
             .addOnSuccessListener {
                 if (!isAdded) return@addOnSuccessListener
-                Toast.makeText(requireContext(), "Jadwal berhasil ditambahkan", Toast.LENGTH_SHORT).show()
-                binding.etJamMulai.text.clear()
-                binding.etJamSelesai.text.clear()
+                val msg = if (selectedJadwalId == null) "Jadwal ditambahkan" else "Jadwal diperbarui"
+                Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
+                resetForm()
                 loadJadwal()
             }
             .addOnFailureListener {
                 if (isAdded) Toast.makeText(requireContext(), "Gagal menyimpan jadwal", Toast.LENGTH_SHORT).show()
             }
+    }
+
+    private fun resetForm() {
+        selectedJadwalId = null
+        binding.etJamMulai.text.clear()
+        binding.etJamSelesai.text.clear()
+        binding.btnSimpanJadwal.text = "SIMPAN JADWAL"
     }
 
     override fun onDestroyView() { super.onDestroyView(); _binding = null }
