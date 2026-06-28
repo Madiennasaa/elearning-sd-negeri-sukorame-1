@@ -217,7 +217,6 @@ class AdminManageUserFragment : Fragment() {
                 if (sPos >= 0) spinnerPersonil.setSelection(sPos)
             }
             
-            // Biodata langsung diambil dari field model User terbaru
             if (roleToUse == "guru") {
                 etNip.setText(user.nip)
                 user.tipeGuru?.let { t ->
@@ -247,7 +246,7 @@ class AdminManageUserFragment : Fragment() {
                 val tipeGuruVal = spTipeGuru.selectedItem.toString().lowercase()
                 val kIdx  = spinnerKelas.selectedItemPosition
                 val kId   = if (kIdx > 0) allKelas[kIdx - 1].id else null
-                val sIdx = spinnerPersonil.selectedItemPosition
+                val sIdx  = spinnerPersonil.selectedItemPosition
                 
                 val selectedRoleValue = dialogRolesValues[spinnerRole.selectedItemPosition]
 
@@ -256,7 +255,7 @@ class AdminManageUserFragment : Fragment() {
                     return@setPositiveButton
                 }
                 
-                // MAPPING DATA SESUAI MODEL USER BARU (SATU ATAP)
+                // MAPPING DATA KE OBJEK USER SESUAI ATURAN BISNIS
                 val userModel = User(
                     uid = user?.uid ?: "",
                     name = name,
@@ -306,7 +305,7 @@ class AdminManageUserFragment : Fragment() {
         pass: String
     ) {
         if (isEdit && user != null) {
-            // Gunakan set() agar seluruh field model User terbaru tersinkronisasi
+            // Cara bersih menggunakan set() dengan objek User
             db.collection("users").document(user.uid).set(userData)
                 .addOnSuccessListener {
                     handleRoleSync(user.uid, userData)
@@ -318,7 +317,7 @@ class AdminManageUserFragment : Fragment() {
             secondaryAuth.createUserWithEmailAndPassword(userData.email!!, pass)
                 .addOnSuccessListener { authResult ->
                     val newUid = authResult.user?.uid ?: ""
-                    // Update UID dan idSiswa (jika siswa) sesuai UID Auth yang baru digenerate
+                    // Aturan: idSiswa diisi UID miliknya sendiri jika role adalah siswa
                     val finalUser = userData.copy(
                         uid = newUid,
                         idSiswa = if (userData.role == "siswa") newUid else userData.idSiswa
@@ -338,29 +337,17 @@ class AdminManageUserFragment : Fragment() {
     }
 
     private fun handleRoleSync(uid: String, u: User) {
-        // Sync ke koleksi legacy agar fitur lain tidak break (misal: Absensi atau Jadwal)
+        // Sync ke koleksi legacy untuk mendukung fitur lain (Jadwal, Absensi, dll)
         when (u.role) {
             "guru" -> {
-                val guruMap = hashMapOf(
-                    "id" to uid,
-                    "userId" to uid,
-                    "nip" to u.nip,
-                    "tipeGuru" to u.tipeGuru
-                )
+                val guruMap = hashMapOf("id" to uid, "userId" to uid, "nip" to u.nip, "tipeGuru" to u.tipeGuru)
                 db.collection("guru").document(uid).set(guruMap)
-                u.kelasId?.let { kId ->
-                    db.collection("kelas").document(kId).update("guruId", uid)
-                }
+                u.kelasId?.let { kId -> db.collection("kelas").document(kId).update("guruId", uid) }
             }
             "siswa" -> {
                 val siswaMap = hashMapOf(
-                    "id" to uid,
-                    "userId" to uid,
-                    "namaLengkap" to u.name,
-                    "nisn" to u.nisn,
-                    "kelasId" to u.kelasId,
-                    "jenisKelamin" to u.jenisKelamin,
-                    "tanggalLahir" to u.tanggalLahir
+                    "id" to uid, "userId" to uid, "namaLengkap" to u.name, "nisn" to u.nisn,
+                    "kelasId" to u.kelasId, "jenisKelamin" to u.jenisKelamin, "tanggalLahir" to u.tanggalLahir
                 )
                 db.collection("siswa").document(uid).set(siswaMap)
             }
@@ -401,7 +388,7 @@ class AdminManageUserFragment : Fragment() {
         override fun onBindViewHolder(h: VH, pos: Int) {
             val u = list[pos]
             h.tvName.text  = u.name
-            h.tvRole.text  = u.role?.replaceFirstChar { it.uppercase() }
+            h.tvRole.text  = u.role?.replace("_", " ")?.replaceFirstChar { it.uppercase() }
             h.tvEmail.text = u.email
             h.btnEdit.setOnClickListener { onEdit(u) }
             h.btnDelete.setOnClickListener { onDelete(u) }
