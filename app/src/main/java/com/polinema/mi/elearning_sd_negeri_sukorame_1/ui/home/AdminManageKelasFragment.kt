@@ -32,7 +32,6 @@ class AdminManageKelasFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // FUNGSI TOMBOL KEMBALI
         binding.btnBack.setOnClickListener {
             parentFragmentManager.popBackStack()
         }
@@ -45,6 +44,7 @@ class AdminManageKelasFragment : Fragment() {
     }
 
     private fun loadData() {
+        // Load semua Guru untuk pilihan Wali Kelas
         db.collection("users").whereEqualTo("role", "guru").get()
             .addOnSuccessListener { gSnap ->
                 if (!isAdded) return@addOnSuccessListener
@@ -52,8 +52,12 @@ class AdminManageKelasFragment : Fragment() {
                 guruList.addAll(gSnap.documents.mapNotNull {
                     it.toObject(User::class.java)?.copy(uid = it.id)
                 })
+                // Refresh data kelas setelah guru dimuat agar Wali Kelas tampil benar
+                loadKelasOnly()
             }
+    }
 
+    private fun loadKelasOnly() {
         db.collection("kelas").get()
             .addOnSuccessListener { snapshot ->
                 if (!isAdded) return@addOnSuccessListener
@@ -62,7 +66,7 @@ class AdminManageKelasFragment : Fragment() {
                 adapter.notifyDataSetChanged()
             }
             .addOnFailureListener {
-                Toast.makeText(requireContext(), "Gagal memuat kelas", Toast.LENGTH_SHORT).show()
+                if (isAdded) Toast.makeText(requireContext(), "Gagal memuat kelas", Toast.LENGTH_SHORT).show()
             }
     }
 
@@ -93,12 +97,11 @@ class AdminManageKelasFragment : Fragment() {
             guruOptions
         )
 
+        // Set seleksi awal jika sedang mengedit
         if (kelas != null) {
-            val existingGuru = guruList.indexOfFirst { user ->
-                user.kelasId == kelas.id
-            }
-            if (existingGuru >= 0) {
-                spinnerGuru.setSelection(existingGuru + 1)
+            val currentGuruIndex = guruList.indexOfFirst { it.uid == kelas.guruId }
+            if (currentGuruIndex >= 0) {
+                spinnerGuru.setSelection(currentGuruIndex + 1)
             }
         }
         dialogLayout.addView(spinnerGuru)
@@ -112,47 +115,47 @@ class AdminManageKelasFragment : Fragment() {
 
                 val selectedGuruPos = spinnerGuru.selectedItemPosition
                 val selectedGuru = if (selectedGuruPos > 0) guruList[selectedGuruPos - 1] else null
-                val guruId = selectedGuru?.idGuru
+                
+                // Poin 2: Gunakan uid dari akun guru
+                val guruUid = selectedGuru?.uid
 
-                val data = hashMapOf(
-                    "namaKelas" to nama,
-                    "tingkat"   to nama.take(1),
-                    "guruId"    to guruId
+                // Poin 1: Gunakan document() kosong untuk ID Hash otomatis
+                val docRef = if (kelas == null) db.collection("kelas").document() else db.collection("kelas").document(kelas.id)
+                val kelasId = docRef.id
+
+                val kelasData = Kelas(
+                    id = kelasId, // Simpan ID Hash ke dalam field 'id'
+                    namaKelas = nama,
+                    tingkat = nama.take(1),
+                    guruId = guruUid
                 )
 
-                if (kelas != null) {
-                    db.collection("kelas").document(kelas.id).update(data as Map<String, Any>)
-                        .addOnSuccessListener {
-                            updateGuruKelasId(selectedGuru, kelas.id)
-                            Toast.makeText(requireContext(), "Tersimpan", Toast.LENGTH_SHORT).show()
-                            loadData()
-                        }
-                        .addOnFailureListener {
-                            Toast.makeText(requireContext(), "Gagal menyimpan", Toast.LENGTH_SHORT).show()
-                        }
-                } else {
-                    db.collection("kelas").add(data)
-                        .addOnSuccessListener { docRef ->
-                            updateGuruKelasId(selectedGuru, docRef.id)
-                            Toast.makeText(requireContext(), "Tersimpan", Toast.LENGTH_SHORT).show()
-                            loadData()
-                        }
-                        .addOnFailureListener {
-                            Toast.makeText(requireContext(), "Gagal menyimpan", Toast.LENGTH_SHORT).show()
-                        }
-                }
+                docRef.set(kelasData)
+                    .addOnSuccessListener {
+                        // Poin 3: Sinkronisasi balik ke data Guru (kelasId)
+                        updateGuruKelasId(selectedGuru, kelasId)
+                        if (isAdded) Toast.makeText(requireContext(), "Tersimpan", Toast.LENGTH_SHORT).show()
+                        loadData()
+                    }
+                    .addOnFailureListener {
+                        if (isAdded) Toast.makeText(requireContext(), "Gagal menyimpan", Toast.LENGTH_SHORT).show()
+                    }
             }
             .setNegativeButton("Batal", null)
             .show()
     }
 
-    private fun updateGuruKelasId(guru: User?, kelasId: String) {
-        if (guru == null) return
-        val guruLama = guruList.firstOrNull { it.kelasId == kelasId && it.uid != guru.uid }
-        guruLama?.let {
+    private fun updateGuruKelasId(newGuru: User?, kelasId: String) {
+        // 1. Bersihkan kelasId dari Guru lama yang sebelumnya memegang kelas ini
+        val previousGuru = guruList.firstOrNull { it.kelasId == kelasId && it.uid != newGuru?.uid }
+        previousGuru?.let {
             db.collection("users").document(it.uid).update("kelasId", null)
         }
-        db.collection("users").document(guru.uid).update("kelasId", kelasId)
+
+        // 2. Jika ada guru baru yang dipilih, update kelasId miliknya
+        newGuru?.let {
+            db.collection("users").document(it.uid).update("kelasId", kelasId)
+        }
     }
 
     private fun confirmDelete(kelas: Kelas) {
@@ -160,15 +163,16 @@ class AdminManageKelasFragment : Fragment() {
             .setPositiveButton("Hapus") { _, _ ->
                 db.collection("kelas").document(kelas.id).delete()
                     .addOnSuccessListener {
-                        val guruYangPegang = guruList.firstOrNull { it.kelasId == kelas.id }
-                        guruYangPegang?.let {
+                        // Bersihkan referensi kelasId di guru saat kelas dihapus
+                        val currentGuru = guruList.firstOrNull { it.kelasId == kelas.id }
+                        currentGuru?.let {
                             db.collection("users").document(it.uid).update("kelasId", null)
                         }
-                        Toast.makeText(requireContext(), "Dihapus", Toast.LENGTH_SHORT).show()
+                        if (isAdded) Toast.makeText(requireContext(), "Dihapus", Toast.LENGTH_SHORT).show()
                         loadData()
                     }
                     .addOnFailureListener {
-                        Toast.makeText(requireContext(), "Gagal hapus", Toast.LENGTH_SHORT).show()
+                        if (isAdded) Toast.makeText(requireContext(), "Gagal hapus", Toast.LENGTH_SHORT).show()
                     }
             }.show()
     }
@@ -187,7 +191,11 @@ class AdminManageKelasFragment : Fragment() {
         override fun onBindViewHolder(h: VH, pos: Int) {
             val k = list[pos]
             h.tvName.text = "Kelas ${k.namaKelas}"
-            h.tvSub.text  = "Tingkat ${k.tingkat ?: k.namaKelas?.take(1) ?: "-"}"
+            
+            // Cari nama Wali Kelas untuk ditampilkan di sub-label
+            val waliKelas = guruList.find { it.uid == k.guruId }
+            h.tvSub.text  = if (waliKelas != null) "Wali Kelas: ${waliKelas.name}" else "Belum ada Wali Kelas"
+
             h.btnEdit.setOnClickListener { onEdit(k) }
             h.btnDelete.setOnClickListener { onDelete(k) }
         }
