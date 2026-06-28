@@ -15,17 +15,17 @@ import com.polinema.mi.elearning_sd_negeri_sukorame_1.R
 import com.polinema.mi.elearning_sd_negeri_sukorame_1.data.model.Absensi
 import com.polinema.mi.elearning_sd_negeri_sukorame_1.data.model.Kelas
 import com.polinema.mi.elearning_sd_negeri_sukorame_1.data.model.Nilai
-import com.polinema.mi.elearning_sd_negeri_sukorame_1.data.model.Siswa
+import com.polinema.mi.elearning_sd_negeri_sukorame_1.data.model.User
 import com.polinema.mi.elearning_sd_negeri_sukorame_1.data.network.SessionManager
 
 class GuruDaftarSiswaFragment : Fragment() {
 
     private val db = FirebaseFirestore.getInstance()
     private lateinit var sessionManager: SessionManager
-    private var guruId = ""
+    private var guruUid = ""
     private var kelasId = ""
-    private val listSiswa = mutableListOf<Siswa>()
-    private val listSiswaFull = mutableListOf<Siswa>()
+    private val listSiswa = mutableListOf<User>()
+    private val listSiswaFull = mutableListOf<User>()
     private lateinit var adapter: DaftarSiswaAdapter
 
     private val stripColors = listOf(
@@ -42,17 +42,17 @@ class GuruDaftarSiswaFragment : Fragment() {
         sessionManager = SessionManager(requireContext())
 
         val user = sessionManager.getUser()
-        guruId = user?.idGuru ?: ""
+        // Menggunakan UID sebagai identitas unik guru
+        guruUid = user?.uid ?: ""
         kelasId = user?.kelasId ?: ""
 
-        if (guruId.isEmpty()) {
-            Toast.makeText(requireContext(), "Data guru tidak ditemukan", Toast.LENGTH_SHORT).show()
+        if (guruUid.isEmpty()) {
+            Toast.makeText(requireContext(), "Sesi guru berakhir", Toast.LENGTH_SHORT).show()
             parentFragmentManager.popBackStack()
             return
         }
 
         if (kelasId.isEmpty()) {
-            // Coba fetch kelas_id jika di user session kosong
             fetchKelasInfo()
         } else {
             setupUI(view)
@@ -66,7 +66,7 @@ class GuruDaftarSiswaFragment : Fragment() {
 
     private fun fetchKelasInfo() {
         db.collection("kelas")
-            .whereEqualTo("guruId", guruId)
+            .whereEqualTo("guruId", guruUid)
             .get()
             .addOnSuccessListener { snapshot ->
                 if (!isAdded) return@addOnSuccessListener
@@ -78,13 +78,13 @@ class GuruDaftarSiswaFragment : Fragment() {
                     setupUI(view!!)
                     loadSiswa()
                 } else {
-                    Toast.makeText(requireContext(), "Guru belum memiliki kelas terdaftar.", Toast.LENGTH_LONG).show()
+                    Toast.makeText(requireContext(), "Anda belum terdaftar sebagai wali kelas.", Toast.LENGTH_LONG).show()
                     parentFragmentManager.popBackStack()
                 }
             }
             .addOnFailureListener { e ->
                 if (!isAdded) return@addOnFailureListener
-                Toast.makeText(requireContext(), "Gagal memuat data kelas: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Gagal memuat data kelas", Toast.LENGTH_SHORT).show()
             }
     }
 
@@ -97,7 +97,6 @@ class GuruDaftarSiswaFragment : Fragment() {
                 view.findViewById<TextView>(R.id.tvNamaKelasDaftarSiswa).text =
                     "Daftar Siswa — Kelas ${kelas?.namaKelas ?: ""}"
             }
-            .addOnFailureListener { /* silent */ }
 
         adapter = DaftarSiswaAdapter(listSiswa) { siswa -> showDetailSiswa(siswa) }
         view.findViewById<RecyclerView>(R.id.rvDaftarSiswa).apply {
@@ -116,13 +115,15 @@ class GuruDaftarSiswaFragment : Fragment() {
     }
 
     private fun loadSiswa() {
-        db.collection("siswa")
+        // Query ke koleksi users dengan role siswa dan kelasId yang sesuai
+        db.collection("users")
+            .whereEqualTo("role", "siswa")
             .whereEqualTo("kelasId", kelasId)
             .get()
             .addOnSuccessListener { snapshot ->
                 if (!isAdded) return@addOnSuccessListener
                 val data = snapshot.documents.mapNotNull { doc ->
-                    doc.toObject(Siswa::class.java)?.copy(id = doc.id)
+                    doc.toObject(User::class.java)?.copy(uid = doc.id)
                 }
                 listSiswaFull.clear()
                 listSiswaFull.addAll(data)
@@ -133,7 +134,7 @@ class GuruDaftarSiswaFragment : Fragment() {
             }
             .addOnFailureListener { e ->
                 if (!isAdded) return@addOnFailureListener
-                Toast.makeText(requireContext(), "Gagal memuat data siswa: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Gagal memuat data siswa", Toast.LENGTH_SHORT).show()
             }
     }
 
@@ -143,7 +144,7 @@ class GuruDaftarSiswaFragment : Fragment() {
             listSiswa.addAll(listSiswaFull)
         } else {
             listSiswa.addAll(listSiswaFull.filter {
-                it.namaLengkap?.contains(keyword, ignoreCase = true) == true ||
+                it.name?.contains(keyword, ignoreCase = true) == true ||
                         it.nisn?.contains(keyword, ignoreCase = true) == true
             })
         }
@@ -160,16 +161,16 @@ class GuruDaftarSiswaFragment : Fragment() {
         v.findViewById<TextView>(R.id.tvJumlahSiswa).text = "${listSiswa.size} Siswa"
     }
 
-    private fun showDetailSiswa(siswa: Siswa) {
+    private fun showDetailSiswa(siswa: User) {
         val dialogView = LayoutInflater.from(requireContext())
             .inflate(R.layout.dialog_detail_siswa, null)
 
-        dialogView.findViewById<TextView>(R.id.tvDetailNamaSiswa).text = siswa.namaLengkap
-        dialogView.findViewById<TextView>(R.id.tvDetailNisnSiswa).text = "NISN: ${siswa.nisn}"
+        dialogView.findViewById<TextView>(R.id.tvDetailNamaSiswa).text = siswa.name
+        dialogView.findViewById<TextView>(R.id.tvDetailNisnSiswa).text = "NISN: ${siswa.nisn ?: "-"}"
 
-        // Load nilai
+        // Load nilai menggunakan UID siswa
         db.collection("nilai")
-            .whereEqualTo("siswaId", siswa.id)
+            .whereEqualTo("siswaId", siswa.uid)
             .get()
             .addOnSuccessListener { snapshot ->
                 if (!isAdded) return@addOnSuccessListener
@@ -181,11 +182,10 @@ class GuruDaftarSiswaFragment : Fragment() {
                         nilaiList.joinToString("\n") { "• ${it.namaMapel} (${it.jenisNilai}): ${it.nilai}" }
                     else "Belum ada nilai"
             }
-            .addOnFailureListener { /* silent */ }
 
-        // Load absensi
+        // Load absensi menggunakan UID siswa
         db.collection("absensi")
-            .whereEqualTo("siswaId", siswa.id)
+            .whereEqualTo("siswaId", siswa.uid)
             .get()
             .addOnSuccessListener { snapshot ->
                 if (!isAdded) return@addOnSuccessListener
@@ -199,7 +199,6 @@ class GuruDaftarSiswaFragment : Fragment() {
                 dialogView.findViewById<TextView>(R.id.tvDetailAbsensiSiswa).text =
                     "Hadir: $hadir hari\nSakit: $sakit hari\nIzin: $izin hari\nAlpha: $alpha hari"
             }
-            .addOnFailureListener { /* silent */ }
 
         AlertDialog.Builder(requireContext())
             .setTitle("Detail Siswa")
@@ -209,8 +208,8 @@ class GuruDaftarSiswaFragment : Fragment() {
     }
 
     inner class DaftarSiswaAdapter(
-        val list: List<Siswa>,
-        val onClick: (Siswa) -> Unit
+        val list: List<User>,
+        val onClick: (User) -> Unit
     ) : RecyclerView.Adapter<DaftarSiswaAdapter.VH>() {
 
         inner class VH(v: View) : RecyclerView.ViewHolder(v) {
@@ -230,10 +229,10 @@ class GuruDaftarSiswaFragment : Fragment() {
             val color = Color.parseColor(stripColors[position % stripColors.size])
 
             holder.stripSiswa.setBackgroundColor(color)
-            holder.tvInisial.text = siswa.namaLengkap
+            holder.tvInisial.text = siswa.name
                 ?.firstOrNull()?.uppercaseChar()?.toString() ?: "?"
             holder.tvInisial.setTextColor(color)
-            holder.tvNama.text  = siswa.namaLengkap
+            holder.tvNama.text  = siswa.name
             holder.tvNisn.text  = "NISN: ${siswa.nisn ?: "-"}"
             holder.tvNomor.text = "${position + 1}"
             holder.itemView.setOnClickListener { onClick(siswa) }

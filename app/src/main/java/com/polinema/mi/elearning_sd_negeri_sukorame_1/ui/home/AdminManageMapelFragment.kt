@@ -30,7 +30,6 @@ class AdminManageMapelFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // FUNGSI TOMBOL KEMBALI
         binding.btnBack.setOnClickListener {
             parentFragmentManager.popBackStack()
         }
@@ -43,7 +42,8 @@ class AdminManageMapelFragment : Fragment() {
     }
 
     private fun loadData() {
-        db.collection("mata_pelajaran").get()
+        // Poin 1: Menggunakan nama koleksi "mapel"
+        db.collection("mapel").get()
             .addOnSuccessListener { snapshot ->
                 if (!isAdded) return@addOnSuccessListener
                 allMapel.clear()
@@ -51,7 +51,7 @@ class AdminManageMapelFragment : Fragment() {
                 adapter.notifyDataSetChanged()
             }
             .addOnFailureListener {
-                Toast.makeText(requireContext(), "Gagal memuat mapel", Toast.LENGTH_SHORT).show()
+                if (isAdded) Toast.makeText(requireContext(), "Gagal memuat mapel", Toast.LENGTH_SHORT).show()
             }
     }
 
@@ -60,6 +60,7 @@ class AdminManageMapelFragment : Fragment() {
         val etKode  = dialogView.findViewById<EditText>(R.id.etKodeMapel)
         val etNama  = dialogView.findViewById<EditText>(R.id.etNamaMapel)
         val spinner = dialogView.findViewById<Spinner>(R.id.spinnerJenisMapel)
+        
         val options = listOf("wajib", "mulok")
         spinner.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, options)
         
@@ -74,25 +75,40 @@ class AdminManageMapelFragment : Fragment() {
             .setTitle(if (mapel == null) "Tambah Mapel" else "Edit Mapel")
             .setView(dialogView)
             .setPositiveButton("Simpan") { _, _ ->
-                val data = hashMapOf(
-                    "nama" to etNama.text.toString().trim(),
-                    "kode" to etKode.text.toString().trim(),
-                    "jenis" to spinner.selectedItem.toString()
+                val nama = etNama.text.toString().trim()
+                val kode = etKode.text.toString().trim()
+                val jenis = spinner.selectedItem.toString()
+
+                if (nama.isEmpty() || kode.isEmpty()) {
+                    Toast.makeText(requireContext(), "Nama dan Kode wajib diisi", Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+
+                // Poin 2: Menggunakan Hash ID otomatis dan menyimpannya ke field 'id'
+                val docRef = if (mapel == null) {
+                    db.collection("mapel").document() // Reference kosong untuk Auto-ID
+                } else {
+                    db.collection("mapel").document(mapel.id)
+                }
+
+                val dataMapel = MataPelajaranData(
+                    id = docRef.id, // Simpan Hash ID ke field property id
+                    nama = nama,
+                    kode = kode,
+                    jenis = jenis
                 )
 
-                val task = if (mapel != null) {
-                    db.collection("mapel").document(mapel.id).update(data as Map<String, Any>)
-                } else {
-                    db.collection("mapel").add(data)
-                }
-
-                task.addOnSuccessListener {
-                    Toast.makeText(requireContext(), "Tersimpan", Toast.LENGTH_SHORT).show()
-                    loadData()
-                }.addOnFailureListener {
-                    Toast.makeText(requireContext(), "Gagal menyimpan", Toast.LENGTH_SHORT).show()
-                }
-            }.show()
+                docRef.set(dataMapel)
+                    .addOnSuccessListener {
+                        if (isAdded) Toast.makeText(requireContext(), "Mapel berhasil disimpan", Toast.LENGTH_SHORT).show()
+                        loadData()
+                    }
+                    .addOnFailureListener {
+                        if (isAdded) Toast.makeText(requireContext(), "Gagal menyimpan", Toast.LENGTH_SHORT).show()
+                    }
+            }
+            .setNegativeButton("Batal", null)
+            .show()
     }
 
     private fun confirmDelete(mapel: MataPelajaranData) {
@@ -100,11 +116,11 @@ class AdminManageMapelFragment : Fragment() {
             .setPositiveButton("Hapus") { _, _ ->
                 db.collection("mapel").document(mapel.id).delete()
                     .addOnSuccessListener {
-                        Toast.makeText(requireContext(), "Dihapus", Toast.LENGTH_SHORT).show()
+                        if (isAdded) Toast.makeText(requireContext(), "Mapel dihapus", Toast.LENGTH_SHORT).show()
                         loadData()
                     }
                     .addOnFailureListener {
-                        Toast.makeText(requireContext(), "Gagal hapus", Toast.LENGTH_SHORT).show()
+                        if (isAdded) Toast.makeText(requireContext(), "Gagal hapus", Toast.LENGTH_SHORT).show()
                     }
             }.show()
     }
@@ -123,7 +139,7 @@ class AdminManageMapelFragment : Fragment() {
         override fun onBindViewHolder(h: VH, pos: Int) {
             val m = list[pos]
             h.tvName.text = m.nama
-            h.tvSub.text  = "Kategori: ${m.jenis} | Kode: ${m.kode}"
+            h.tvSub.text  = "Jenis: ${m.jenis.uppercase()} | Kode: ${m.kode}"
             h.btnEdit.setOnClickListener { onEdit(m) }
             h.btnDelete.setOnClickListener { onDelete(m) }
         }
