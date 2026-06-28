@@ -9,14 +9,13 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.firebase.firestore.FirebaseFirestore
-import com.polinema.mi.elearning_sd_negeri_sukorame_1.R
-import com.polinema.mi.elearning_sd_negeri_sukorame_1.data.model.User
-import com.polinema.mi.elearning_sd_negeri_sukorame_1.databinding.FragmentAdminManageUserBinding
-
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.polinema.mi.elearning_sd_negeri_sukorame_1.R
 import com.polinema.mi.elearning_sd_negeri_sukorame_1.data.model.Kelas
+import com.polinema.mi.elearning_sd_negeri_sukorame_1.data.model.User
+import com.polinema.mi.elearning_sd_negeri_sukorame_1.databinding.FragmentAdminManageUserBinding
 import java.util.*
 
 class AdminManageUserFragment : Fragment() {
@@ -28,10 +27,8 @@ class AdminManageUserFragment : Fragment() {
     private lateinit var adapter: UserAdapter
     private val db = FirebaseFirestore.getInstance()
 
-    // Logika Dinamis: Status keberadaan Kepala Sekolah
     private var isKepsekRegistered = false
 
-    // Secondary Auth to create users without logging out Admin
     private val secondaryAuth: FirebaseAuth by lazy {
         val options = FirebaseApp.getInstance().options
         val name = "SecondaryAuthApp"
@@ -51,10 +48,7 @@ class AdminManageUserFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         
-        // FUNGSI TOMBOL KEMBALI
-        binding.btnBack.setOnClickListener {
-            parentFragmentManager.popBackStack()
-        }
+        binding.btnBack.setOnClickListener { parentFragmentManager.popBackStack() }
         
         adapter = UserAdapter(allUsers, { u -> showUserDialog(u) }, { u -> confirmDelete(u) })
         binding.rvUsers.layoutManager = LinearLayoutManager(requireContext())
@@ -62,8 +56,6 @@ class AdminManageUserFragment : Fragment() {
         
         loadUsers()
         loadKelas()
-        
-        // 1. Jalankan pengecekan keberadaan Kepsek secara Async
         checkKepsekAvailability()
 
         binding.searchUser.setOnQueryTextListener(object : androidx.appcompat.widget.SearchView.OnQueryTextListener {
@@ -85,10 +77,7 @@ class AdminManageUserFragment : Fragment() {
                 allUsers.clear()
                 allUsers.addAll(snapshot.documents.mapNotNull { it.toObject(User::class.java)?.copy(uid = it.id) })
                 adapter.updateList(allUsers)
-                
-                // Refresh status Kepsek setiap kali data dimuat
-                val hasKepsek = allUsers.any { it.role == "kepala_sekolah" }
-                isKepsekRegistered = hasKepsek
+                isKepsekRegistered = allUsers.any { it.role == "kepala_sekolah" }
                 setupAddButton()
             }
             .addOnFailureListener {
@@ -102,9 +91,6 @@ class AdminManageUserFragment : Fragment() {
         }
     }
 
-    /**
-     * Pengecekan Asynchronous untuk ketersediaan role Kepala Sekolah
-     */
     private fun checkKepsekAvailability() {
         db.collection("users")
             .whereEqualTo("role", "kepala_sekolah")
@@ -116,15 +102,10 @@ class AdminManageUserFragment : Fragment() {
             }
     }
 
-    /**
-     * Membangun menu pilihan role secara dinamis
-     */
     private fun setupAddButton() {
-        // Daftar role dasar (Tanpa Admin & Kepsek)
         val rolesDisplay = mutableListOf("Guru", "Murid", "Wali Murid")
         val rolesValues = mutableListOf("guru", "siswa", "wali_murid")
 
-        // Tambahkan Kepala Sekolah jika belum ada
         if (!isKepsekRegistered) {
             rolesDisplay.add(0, "Kepala Sekolah")
             rolesValues.add(0, "kepala_sekolah")
@@ -140,23 +121,10 @@ class AdminManageUserFragment : Fragment() {
         }
     }
 
-    private fun checkKepsekExists(onResult: (Boolean) -> Unit) {
-        db.collection("users")
-            .whereEqualTo("role", "kepala_sekolah")
-            .get()
-            .addOnSuccessListener { snapshot ->
-                onResult(!snapshot.isEmpty)
-            }
-            .addOnFailureListener {
-                onResult(false)
-            }
-    }
-
     private fun showUserDialog(user: User?, forcedRole: String? = null) {
         val isEdit = user != null
         val roleToUse = (forcedRole ?: user?.role ?: "siswa").lowercase()
         
-        // Validasi Keamanan: Blokir pembuatan Admin baru
         if (!isEdit && roleToUse == "admin") {
             Toast.makeText(requireContext(), "Anda tidak diizinkan membuat Admin baru!", Toast.LENGTH_SHORT).show()
             return
@@ -174,6 +142,8 @@ class AdminManageUserFragment : Fragment() {
         
         val layoutGuru  = dialogView.findViewById<LinearLayout>(R.id.layoutGuruFields)
         val layoutSiswa = dialogView.findViewById<LinearLayout>(R.id.layoutSiswaFields)
+        val layoutSelectPersonil = dialogView.findViewById<LinearLayout>(R.id.layoutSelectPersonil)
+        val spinnerPersonil = dialogView.findViewById<Spinner>(R.id.spinnerPersonil)
         
         val etNip       = dialogView.findViewById<EditText>(R.id.etNip)
         val spTipeGuru  = dialogView.findViewById<Spinner>(R.id.spinnerTipeGuru)
@@ -181,31 +151,29 @@ class AdminManageUserFragment : Fragment() {
         val spGender    = dialogView.findViewById<Spinner>(R.id.spinnerGender)
         val etTglLahir  = dialogView.findViewById<EditText>(R.id.etTglLahir)
 
-        // MANIPULASI LIST SPINNER DALAM FORM
         val dialogRolesDisplay = mutableListOf("Guru", "Murid", "Wali Murid")
         val dialogRolesValues = mutableListOf("guru", "siswa", "wali_murid")
 
-        // Tambahkan pilihan 'Admin' hanya jika sedang mengedit user Admin (agar data tidak berubah otomatis)
         if (isEdit && user?.role == "admin") {
             dialogRolesDisplay.add(0, "Admin")
             dialogRolesValues.add(0, "admin")
         }
-
-        // Tambahkan pilihan 'Kepala Sekolah' jika sedang mengedit Kepsek atau jika memang belum ada
         if (roleToUse == "kepala_sekolah" || !isKepsekRegistered) {
             dialogRolesDisplay.add("Kepala Sekolah")
             dialogRolesValues.add("kepala_sekolah")
         }
 
-        val roleAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, dialogRolesDisplay)
-        spinnerRole.adapter = roleAdapter
-        
+        spinnerRole.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, dialogRolesDisplay)
         spTipeGuru.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, listOf("Umum", "Mulok"))
         spGender.adapter   = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, listOf("Laki-laki", "Perempuan"))
         
         val kelasNames = mutableListOf("Tanpa Kelas")
         kelasNames.addAll(allKelas.map { it.namaKelas ?: it.id })
         spinnerKelas.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, kelasNames)
+
+        val studentsList = allUsers.filter { it.role == "siswa" }
+        val studentNames = studentsList.map { "${it.name} (${it.email})" }
+        spinnerPersonil.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, studentNames)
 
         etTglLahir.setOnClickListener {
             val c = Calendar.getInstance()
@@ -217,15 +185,18 @@ class AdminManageUserFragment : Fragment() {
         fun applyRoleVisibility(r: String) {
             layoutGuru.visibility  = if (r == "guru") View.VISIBLE else View.GONE
             layoutSiswa.visibility = if (r == "siswa") View.VISIBLE else View.GONE
+            layoutSelectPersonil.visibility = if (r == "wali_murid") View.VISIBLE else View.GONE
             spinnerKelas.visibility = if (r == "guru" || r == "siswa") View.VISIBLE else View.GONE
             tvLabelKelas.visibility = if (r == "guru" || r == "siswa") View.VISIBLE else View.GONE
+            
+            if (r == "wali_murid") {
+                (layoutSelectPersonil.getChildAt(0) as? TextView)?.text = "Pilih Anak (Siswa)"
+            }
         }
 
         applyRoleVisibility(roleToUse)
         val rPos = dialogRolesValues.indexOf(roleToUse)
         if (rPos >= 0) spinnerRole.setSelection(rPos)
-        
-        // Kunci Spinner jika mode Tambah (agar mengikuti pilihan dialog awal)
         spinnerRole.isEnabled = isEdit
 
         if (isEdit && user != null) {
@@ -240,19 +211,25 @@ class AdminManageUserFragment : Fragment() {
                 val kPos = allKelas.indexOfFirst { it.id == userKelasId }
                 if (kPos >= 0) spinnerKelas.setSelection(kPos + 1)
             }
+
+            if (roleToUse == "wali_murid" && !user.idSiswa.isNullOrEmpty()) {
+                val sPos = studentsList.indexOfFirst { it.uid == user.idSiswa }
+                if (sPos >= 0) spinnerPersonil.setSelection(sPos)
+            }
             
+            // Biodata langsung diambil dari field model User terbaru
             if (roleToUse == "guru") {
-                db.collection("guru").document(user.idGuru ?: user.uid).get().addOnSuccessListener { d ->
-                    etNip.setText(d.getString("nip"))
-                    val t = d.getString("tipeGuru")
-                    if (t != null) spTipeGuru.setSelection(listOf("Umum", "Mulok").indexOf(t).coerceAtLeast(0))
+                etNip.setText(user.nip)
+                user.tipeGuru?.let { t ->
+                    val pos = listOf("umum", "mulok").indexOf(t.lowercase())
+                    if (pos >= 0) spTipeGuru.setSelection(pos)
                 }
             } else if (roleToUse == "siswa") {
-                db.collection("siswa").document(user.idSiswa ?: user.uid).get().addOnSuccessListener { d ->
-                    etNisn.setText(d.getString("nisn"))
-                    etTglLahir.setText(d.getString("tanggalLahir"))
-                    val g = d.getString("jenisKelamin")
-                    if (g != null) spGender.setSelection(listOf("Laki-laki", "Perempuan").indexOf(g).coerceAtLeast(0))
+                etNisn.setText(user.nisn)
+                etTglLahir.setText(user.tanggalLahir)
+                user.jenisKelamin?.let { g ->
+                    val pos = listOf("Laki-laki", "Perempuan").indexOf(g)
+                    if (pos >= 0) spGender.setSelection(pos)
                 }
             }
         }
@@ -267,11 +244,11 @@ class AdminManageUserFragment : Fragment() {
                 val noHp  = etNoHp.text.toString().trim()
                 val nip   = etNip.text.toString().trim()
                 val nisn  = etNisn.text.toString().trim()
-                val tipeGuru = spTipeGuru.selectedItem.toString()
+                val tipeGuruVal = spTipeGuru.selectedItem.toString().lowercase()
                 val kIdx  = spinnerKelas.selectedItemPosition
                 val kId   = if (kIdx > 0) allKelas[kIdx - 1].id else null
+                val sIdx = spinnerPersonil.selectedItemPosition
                 
-                // Ambil role terpilih dari Spinner form
                 val selectedRoleValue = dialogRolesValues[spinnerRole.selectedItemPosition]
 
                 if (name.isEmpty() || email.isEmpty() || (!isEdit && pass.isEmpty())) {
@@ -279,37 +256,44 @@ class AdminManageUserFragment : Fragment() {
                     return@setPositiveButton
                 }
                 
-                val userData = mutableMapOf<String, Any?>(
-                    "name" to name,
-                    "email" to email,
-                    "role" to selectedRoleValue,
-                    "noHp" to noHp,
-                    "kelasId" to kId,
-                    "tipeGuru" to if (selectedRoleValue == "guru") tipeGuru else null,
-                    "idGuru" to if (selectedRoleValue == "guru") (user?.idGuru ?: "") else null,
-                    "idSiswa" to if (selectedRoleValue == "siswa") (user?.idSiswa ?: "") else null
+                // MAPPING DATA SESUAI MODEL USER BARU (SATU ATAP)
+                val userModel = User(
+                    uid = user?.uid ?: "",
+                    name = name,
+                    email = email,
+                    role = selectedRoleValue,
+                    noHp = noHp,
+                    tipeGuru = if (selectedRoleValue == "guru") tipeGuruVal else null,
+                    idSiswa = when (selectedRoleValue) {
+                        "siswa" -> user?.uid 
+                        "wali_murid" -> if (sIdx >= 0) studentsList[sIdx].uid else null
+                        else -> null
+                    },
+                    idGuru = null, // Sesuai aturan: diisi null
+                    kelasId = if (selectedRoleValue == "guru" || selectedRoleValue == "siswa") kId else null,
+                    nip = if (selectedRoleValue == "guru") nip else null,
+                    nisn = if (selectedRoleValue == "siswa") nisn else null,
+                    jenisKelamin = if (selectedRoleValue == "siswa") spGender.selectedItem.toString() else null,
+                    tanggalLahir = if (selectedRoleValue == "siswa") etTglLahir.text.toString() else null
                 )
 
-                // VALIDASI FINAL SEBELUM SIMPAN
                 if (!isEdit) {
                     if (selectedRoleValue == "admin") {
-                        Toast.makeText(context, "Operasi Ditolak: Dilarang membuat Admin baru!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Dilarang membuat Admin baru!", Toast.LENGTH_SHORT).show()
                         return@setPositiveButton
                     }
                     if (selectedRoleValue == "kepala_sekolah" && isKepsekRegistered) {
-                        Toast.makeText(requireContext(), "Kepala Sekolah sudah ada di sistem!", Toast.LENGTH_LONG).show()
+                        Toast.makeText(requireContext(), "Kepala Sekolah sudah ada!", Toast.LENGTH_LONG).show()
                         return@setPositiveButton
                     }
                 }
                 
-                executeSaveUser(user, userData, isEdit, email, pass, nip, nisn, tipeGuru, kId, selectedRoleValue, spGender, etTglLahir)
+                executeSaveUser(user, userModel, isEdit, pass)
             }
             .setNeutralButton(if(isEdit) "Reset Password" else null) { _, _ ->
                 if (isEdit && user?.email != null) {
                     FirebaseAuth.getInstance().sendPasswordResetEmail(user.email)
-                        .addOnSuccessListener {
-                            Toast.makeText(context, "Link reset password dikirim", Toast.LENGTH_LONG).show()
-                        }
+                        .addOnSuccessListener { Toast.makeText(context, "Link reset dikirim", Toast.LENGTH_LONG).show() }
                 }
             }
             .setNegativeButton("Batal", null).show()
@@ -317,78 +301,75 @@ class AdminManageUserFragment : Fragment() {
 
     private fun executeSaveUser(
         user: User?,
-        userData: MutableMap<String, Any?>,
+        userData: User,
         isEdit: Boolean,
-        email: String,
-        pass: String,
-        nip: String,
-        nisn: String,
-        tipeGuru: String,
-        kId: String?,
-        roleToUse: String,
-        spGender: Spinner,
-        etTglLahir: EditText
+        pass: String
     ) {
         if (isEdit && user != null) {
-            db.collection("users").document(user.uid).update(userData)
+            // Gunakan set() agar seluruh field model User terbaru tersinkronisasi
+            db.collection("users").document(user.uid).set(userData)
                 .addOnSuccessListener {
-                    handleRoleSync(user.uid, roleToUse, userData, nip, nisn, tipeGuru, kId, spGender, etTglLahir)
+                    handleRoleSync(user.uid, userData)
                     Toast.makeText(context, "Berhasil diperbarui", Toast.LENGTH_SHORT).show()
                     loadUsers()
                 }
+                .addOnFailureListener { e -> Toast.makeText(context, "Gagal update: ${e.message}", Toast.LENGTH_SHORT).show() }
         } else {
-            secondaryAuth.createUserWithEmailAndPassword(email, pass)
+            secondaryAuth.createUserWithEmailAndPassword(userData.email!!, pass)
                 .addOnSuccessListener { authResult ->
                     val newUid = authResult.user?.uid ?: ""
-                    userData["uid"] = newUid
-                    userData["idGuru"] = if (roleToUse == "guru") newUid else null
-                    userData["idSiswa"] = if (roleToUse == "siswa") newUid else null
+                    // Update UID dan idSiswa (jika siswa) sesuai UID Auth yang baru digenerate
+                    val finalUser = userData.copy(
+                        uid = newUid,
+                        idSiswa = if (userData.role == "siswa") newUid else userData.idSiswa
+                    )
                     
-                    db.collection("users").document(newUid).set(userData)
+                    db.collection("users").document(newUid).set(finalUser)
                         .addOnSuccessListener {
-                            handleRoleSync(newUid, roleToUse, userData, nip, nisn, tipeGuru, kId, spGender, etTglLahir)
+                            handleRoleSync(newUid, finalUser)
                             Toast.makeText(context, "User berhasil dibuat!", Toast.LENGTH_SHORT).show()
                             secondaryAuth.signOut()
                             loadUsers()
                         }
+                        .addOnFailureListener { e -> Toast.makeText(context, "Gagal simpan DB: ${e.message}", Toast.LENGTH_SHORT).show() }
                 }
-                .addOnFailureListener { e -> Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_LONG).show() }
+                .addOnFailureListener { e -> Toast.makeText(context, "Error Auth: ${e.message}", Toast.LENGTH_LONG).show() }
         }
     }
 
-    private fun handleRoleSync(
-        uid: String,
-        role: String,
-        userData: Map<String, Any?>,
-        nip: String,
-        nisn: String,
-        tipeGuru: String,
-        kId: String?,
-        spGender: Spinner,
-        etTglLahir: EditText
-    ) {
-        if (role == "guru") {
-            db.collection("guru").document(uid).set(hashMapOf(
-                "id" to uid, "userId" to uid, 
-                "nip" to nip, "tipeGuru" to tipeGuru
-            ))
-            if (kId != null) db.collection("kelas").document(kId).update("guruId", uid)
-        } else if (role == "siswa") {
-            db.collection("siswa").document(uid).set(hashMapOf(
-                "id" to uid, "userId" to uid, "namaLengkap" to userData["name"],
-                "nisn" to nisn, "kelasId" to kId,
-                "jenisKelamin" to spGender.selectedItem.toString(), "tanggalLahir" to etTglLahir.text.toString()
-            ))
+    private fun handleRoleSync(uid: String, u: User) {
+        // Sync ke koleksi legacy agar fitur lain tidak break (misal: Absensi atau Jadwal)
+        when (u.role) {
+            "guru" -> {
+                val guruMap = hashMapOf(
+                    "id" to uid,
+                    "userId" to uid,
+                    "nip" to u.nip,
+                    "tipeGuru" to u.tipeGuru
+                )
+                db.collection("guru").document(uid).set(guruMap)
+                u.kelasId?.let { kId ->
+                    db.collection("kelas").document(kId).update("guruId", uid)
+                }
+            }
+            "siswa" -> {
+                val siswaMap = hashMapOf(
+                    "id" to uid,
+                    "userId" to uid,
+                    "namaLengkap" to u.name,
+                    "nisn" to u.nisn,
+                    "kelasId" to u.kelasId,
+                    "jenisKelamin" to u.jenisKelamin,
+                    "tanggalLahir" to u.tanggalLahir
+                )
+                db.collection("siswa").document(uid).set(siswaMap)
+            }
         }
     }
 
     private fun confirmDelete(user: User) {
-        val currentUid = FirebaseAuth.getInstance().currentUser?.uid
-        if (user.uid == currentUid) {
-            AlertDialog.Builder(requireContext())
-                .setTitle("Tindakan Ditolak")
-                .setMessage("Anda tidak dapat menghapus akun Anda sendiri.")
-                .setPositiveButton("Mengerti", null).show()
+        if (user.uid == FirebaseAuth.getInstance().currentUser?.uid) {
+            AlertDialog.Builder(requireContext()).setTitle("Ditolak").setMessage("Tidak bisa hapus diri sendiri.").show()
             return
         }
 

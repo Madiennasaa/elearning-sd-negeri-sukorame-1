@@ -1,20 +1,23 @@
 package com.polinema.mi.elearning_sd_negeri_sukorame_1.data.model
 
-// ── AUTH & PROFIL USER ──────────────────────────────────
 data class User(
-    val uid: String = "",         // UID asli dari Firebase Auth
+    val uid: String = "",
     val name: String? = "",
     val email: String? = "",
-    val role: String? = "",       // "admin", "guru", "siswa", "wali_murid", "kepala_sekolah"
+    val role: String? = "",
     val foto: String? = "",
     val noHp: String? = "",
-    val tipeGuru: String? = null, // "umum", "mulok", "agama"
-    val idSiswa: String? = null,  // Menunjuk ke ID Document di koleksi siswa
-    val idGuru: String? = null,   // Menunjuk ke ID Document di koleksi guru
-    val kelasId: String? = null   // Menunjuk ke ID Document di koleksi kelas
+    val tipeGuru: String? = null,
+    val idSiswa: String? = null,
+    val idGuru: String? = null,
+    val kelasId: String? = null,
+    val nip: String? = null,
+    val nisn: String? = null,
+    val jenisKelamin: String? = null,
+    val tanggalLahir: String? = null,
+    val waliMuridId: String? = null
 )
 
-// ── DATA MASTER SEKOLAH ──────────────────────────────────
 data class Sekolah(
     val npsn: String = "",
     val nama: String? = "",
@@ -27,36 +30,17 @@ data class Kelas(
     val id: String = "",
     val namaKelas: String? = "",
     val tingkat: String? = "",
-    val rombel: String? = ""
+    val rombel: String? = "",
+    val guruId: String? = null
 )
 
 data class MataPelajaranData(
     val id: String = "",
     val nama: String = "",
     val kode: String = "",
-    val jenis: String = ""        // "wajib" atau "mulok"
+    val jenis: String = ""
 )
 
-// ── SINKRONISASI ENTITAS ROLE ────────────────────────────
-data class Siswa(
-    val id: String = "",          // ID Document Firestore (e.g., "SISWA001")
-    val userId: String = "",      // UID dari Firebase Auth milik si siswa
-    val nisn: String? = "",
-    val namaLengkap: String? = "",
-    val jenisKelamin: String? = "",
-    val tanggalLahir: String? = "",
-    val kelasId: String? = null,
-    val waliMuridId: String? = null // UID dari Firebase Auth milik si wali
-)
-
-data class Guru(
-    val id: String = "",          // ID Document Firestore (e.g., "GURU001")
-    val userId: String = "",      // UID dari Firebase Auth milik si guru
-    val nip: String? = "",
-    val tipeGuru: String? = ""    // "umum", "mulok", "agama"
-)
-
-// ── AKADEMIK & KBM ──────────────────────────────────────
 data class Jadwal(
     val id: String = "",
     val kelasId: String? = "",
@@ -65,7 +49,6 @@ data class Jadwal(
     val hari: String? = "",
     val waktuMulai: String? = "",
     val waktuSelesai: String? = "",
-    // FIX: Field denormalisasi yang disimpan admin saat buat jadwal
     val namaMapel: String? = "",
     val namaGuru: String? = "",
     val namaKelas: String? = ""
@@ -75,10 +58,10 @@ data class Pengumuman(
     val id: String = "",
     val judul: String? = "",
     val isi: String? = "",
-    val kategori: String? = "",  // "Umum", "Akademik"
-    val untuk: String? = "semua", // "semua", "siswa", "guru", "wali_murid"
+    val kategori: String? = "",
+    val untuk: String? = "semua",
     val tanggal: String? = "",
-    val status: String? = ""     // "Aktif"
+    val status: String? = ""
 )
 
 data class Materi(
@@ -89,10 +72,9 @@ data class Materi(
     val namaMapel: String? = "",
     val namaGuru: String? = "",
     val kelasId: String? = "",
-    val tipe: String? = "materi"  // "video" atau "materi"
+    val tipe: String? = "materi"
 )
 
-// ── TUGAS & CBT (UJIAN) ──────────────────────────────────
 data class Tugas(
     val id: String = "",
     val judul: String? = "",
@@ -101,7 +83,7 @@ data class Tugas(
     val jumlahSoal: Int? = 0,
     val durasi: Int? = null,
     val kelasId: String? = "",
-    @field:JvmField               // Amankan penamaan boolean bertema 'sudah' di Firestore
+    @field:JvmField
     val sudahDikerjakan: Boolean = false
 )
 
@@ -113,14 +95,13 @@ data class SoalRaw(
     val pilihanB: String? = "",
     val pilihanC: String? = "",
     val pilihanD: String? = "",
-    val jawabanBenar: String? = "" // "A", "B", "C", atau "D"
+    val jawabanBenar: String? = ""
 )
 
-// FIX: Model lokal untuk tampilan CBT — tidak disimpan ke Firestore
 data class PilihanData(
-    val id: String = "",          // e.g. "SOAL001_A"
-    val pilihan: String = "",     // "A", "B", "C", "D"
-    val isiPilihan: String = "",  // teks isi pilihan
+    val id: String = "",
+    val pilihan: String = "",
+    val isiPilihan: String = "",
     val isSelected: Boolean = false
 )
 
@@ -138,31 +119,29 @@ data class TugasDetail(
     val soal: List<SoalRaw>? = emptyList()
 )
 
-// ── DATA TRANSAKSIONAL (DINAMIS) ─────────────────────────
 data class Absensi(
     val id: String = "",
     val siswaId: String? = "",
     val kelasId: String? = "",
     val tanggal: String? = "",
-    val status: String? = "",     // "hadir", "sakit", "izin", "alpha"
+    val status: String? = "",
     val keterangan: String? = "",
-    // Variabel titipan lokal untuk mempermudah adapter RecyclerView di Android
     val namaSiswa: String? = "",
     val namaKelas: String? = ""
 )
 
 data class Nilai(
     val id: String = "",
-    val siswaId: String = "",     // FIX: Sekarang sinkron dengan data seed transaksional!
+    val siswaId: String = "",
     val namaMapel: String? = "",
-    val jenisNilai: String? = "", // "Tugas 1", "UTS Ganjil", dll.
+    val jenisNilai: String? = "",
     val nilai: Double = 0.0,
     val semester: String? = ""
 )
 
 data class Rapor(
     val id: String = "",
-    val siswaId: String = "",     // FIX: Sekarang sinkron, wali murid gak bakal kehilangan data anak!
+    val siswaId: String = "",
     val semester: String? = "",
     val tahunAjaran: String? = "",
     val totalHadir: Int = 0,
@@ -184,9 +163,17 @@ data class HasilCbt(
     val nilai: Double = 0.0
 )
 
+data class JawabanCbt(
+    val id: String = "",
+    val jawaban: String? = "",
+    val siswaId: String? = "",
+    val soalId: String? = "",
+    val tugasId: String? = ""
+)
+
 data class SystemLog(
     val id: String = "",
     val activity: String = "",
-    val user: String = "",        // Diisi email user yang beraktivitas
+    val user: String = "",
     val createdAt: String = ""
 )
