@@ -10,9 +10,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.firestore.FirebaseFirestore
 import com.polinema.mi.elearning_sd_negeri_sukorame_1.R
 import com.polinema.mi.elearning_sd_negeri_sukorame_1.databinding.FragmentKepalaLaporanBinding
-// PENTING: Import model data Firestore kamu yang kemarin kita rapikan
 import com.polinema.mi.elearning_sd_negeri_sukorame_1.data.model.Kelas
-import com.polinema.mi.elearning_sd_negeri_sukorame_1.data.model.Siswa
+import com.polinema.mi.elearning_sd_negeri_sukorame_1.data.model.User
 import com.polinema.mi.elearning_sd_negeri_sukorame_1.data.model.Absensi
 import com.polinema.mi.elearning_sd_negeri_sukorame_1.data.model.Nilai
 
@@ -33,34 +32,30 @@ class KepalaLaporanFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.rvLaporanKelas.layoutManager = LinearLayoutManager(requireContext())
 
-        // Fetch semua koleksi master & transaksional untuk dihitung statistiknya secara lokal
+        // Fetch master data: Kelas dan Users (role siswa)
         db.collection("kelas").get().addOnSuccessListener { kelasSnap ->
-            db.collection("siswa").get().addOnSuccessListener { siswaSnap ->
+            db.collection("users").whereEqualTo("role", "siswa").get().addOnSuccessListener { siswaSnap ->
                 db.collection("absensi").get().addOnSuccessListener { absenSnap ->
                     db.collection("nilai").get().addOnSuccessListener { nilaiSnap ->
                         if (!isAdded) return@addOnSuccessListener
 
-                        // Mapping data snapshot Firestore ke Model Object Kotlin secara aman
                         val kelasList = kelasSnap.documents.mapNotNull { it.toObject(Kelas::class.java)?.copy(id = it.id) }
-                        val siswaList = siswaSnap.documents.mapNotNull { it.toObject(Siswa::class.java)?.copy(id = it.id) }
+                        val siswaList = siswaSnap.documents.mapNotNull { it.toObject(User::class.java)?.copy(uid = it.id) }
                         val absenList = absenSnap.documents.mapNotNull { it.toObject(Absensi::class.java)?.copy(id = it.id) }
                         val nilaiList = nilaiSnap.documents.mapNotNull { it.toObject(Nilai::class.java)?.copy(id = it.id) }
 
                         val data = kelasList.map { k ->
-                            // Filter siswa yang masuk dalam kelas ini
                             val studentsInClass = siswaList.filter { it.kelasId == k.id }
-                            val studentIds = studentsInClass.map { it.id }
+                            val studentIds = studentsInClass.map { it.uid }
 
                             val totalSiswa = studentsInClass.size
 
-                            // Hitung Persentase Rata-rata Kehadiran: (Hadir / Total Absensi) * 100
                             val classAbsen = absenList.filter { it.siswaId in studentIds }
                             val rataAbsen = if (classAbsen.isNotEmpty()) {
                                 val hadir = classAbsen.count { it.status?.equals("hadir", true) == true }
                                 "${(hadir * 100) / classAbsen.size}%"
                             } else "0%"
 
-                            // Hitung Rata-rata Nilai Kelas (Ujian/Tugas)
                             val classNilai = nilaiList.filter { it.siswaId in studentIds }
                             val rataMapel = if (classNilai.isNotEmpty()) {
                                 String.format("%.1f", classNilai.map { it.nilai }.average())
@@ -75,8 +70,8 @@ class KepalaLaporanFragment : Fragment() {
                         }
 
                         if (data.isEmpty()) {
-                            db.collection("users").get().addOnSuccessListener { uSnap ->
-                                val totalGuru = uSnap.documents.count { it.getString("role") == "guru" }
+                            db.collection("users").whereEqualTo("role", "guru").get().addOnSuccessListener { uSnap ->
+                                val totalGuru = uSnap.size()
                                 val items = listOf(LaporanItem("Ringkasan Sekolah", "-", "$totalGuru Guru", "-"))
                                 binding.rvLaporanKelas.adapter = LaporanAdapter(items)
                             }

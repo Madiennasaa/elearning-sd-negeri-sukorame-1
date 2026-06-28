@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.firestore.FirebaseFirestore
 import com.polinema.mi.elearning_sd_negeri_sukorame_1.R
 import com.polinema.mi.elearning_sd_negeri_sukorame_1.data.model.Kelas
-import com.polinema.mi.elearning_sd_negeri_sukorame_1.data.model.Siswa
+import com.polinema.mi.elearning_sd_negeri_sukorame_1.data.model.User
 import com.polinema.mi.elearning_sd_negeri_sukorame_1.data.network.SessionManager
 import com.polinema.mi.elearning_sd_negeri_sukorame_1.databinding.FragmentGuruInputAbsensiBinding
 import java.text.SimpleDateFormat
@@ -50,7 +50,7 @@ class GuruInputAbsensiFragment : Fragment() {
         sessionManager = SessionManager(requireContext())
 
         val user = sessionManager.getUser()
-        guruId = user?.idGuru ?: ""
+        guruId = user?.uid ?: "" // Menggunakan UID dari User model satu atap
 
         if (guruId.isEmpty()) {
             Toast.makeText(requireContext(), "Data guru tidak ditemukan", Toast.LENGTH_SHORT).show()
@@ -110,20 +110,22 @@ class GuruInputAbsensiFragment : Fragment() {
     }
 
     private fun loadSiswa() {
-        db.collection("siswa")
+        // Query ke koleksi users dengan filter role siswa dan kelasId
+        db.collection("users")
+            .whereEqualTo("role", "siswa")
             .whereEqualTo("kelasId", kelasId)
             .get()
             .addOnSuccessListener { snapshot ->
                 if (!isAdded) return@addOnSuccessListener
                 val siswaList = snapshot.documents.mapNotNull { doc ->
-                    doc.toObject(Siswa::class.java)?.copy(id = doc.id)
+                    doc.toObject(User::class.java)?.copy(uid = doc.id)
                 }
                 if (siswaList.isEmpty()) {
                     Toast.makeText(requireContext(), "Tidak ada siswa di kelas ini", Toast.LENGTH_SHORT).show()
                     binding.btnSimpanAbsen.isEnabled = false
                 } else {
                     binding.btnSimpanAbsen.isEnabled = true
-                    siswaList.forEach { statusMap[it.id] = "Hadir" }
+                    siswaList.forEach { statusMap[it.uid] = "Hadir" }
                     binding.rvAbsensi.layoutManager = LinearLayoutManager(requireContext())
                     binding.rvAbsensi.adapter = AbsensiInputAdapter(siswaList) { sId, status ->
                         statusMap[sId] = status
@@ -200,7 +202,7 @@ class GuruInputAbsensiFragment : Fragment() {
     }
 
     inner class AbsensiInputAdapter(
-        private val list: List<Siswa>,
+        private val list: List<User>,
         private val onStatusChanged: (String, String) -> Unit
     ) : RecyclerView.Adapter<AbsensiInputAdapter.VH>() {
 
@@ -216,8 +218,8 @@ class GuruInputAbsensiFragment : Fragment() {
         }
 
         override fun onBindViewHolder(holder: VH, position: Int) {
-            val siswa = list[position]
-            holder.tvNama.text = siswa.namaLengkap
+            val user = list[position]
+            holder.tvNama.text = user.name
             val statusOptions = listOf("Hadir", "Sakit", "Izin", "Alpha")
 
             val spinnerAdapter = object : ArrayAdapter<String>(
@@ -248,7 +250,7 @@ class GuruInputAbsensiFragment : Fragment() {
             holder.spinner.adapter = spinnerAdapter
             holder.spinner.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(parent: android.widget.AdapterView<*>?, v: View?, pos: Int, id: Long) {
-                    onStatusChanged(siswa.id, statusOptions[pos])
+                    onStatusChanged(user.uid, statusOptions[pos])
                 }
                 override fun onNothingSelected(parent: android.widget.AdapterView<*>?) {}
             }

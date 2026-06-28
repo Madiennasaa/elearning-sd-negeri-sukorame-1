@@ -10,7 +10,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.polinema.mi.elearning_sd_negeri_sukorame_1.R
 import com.polinema.mi.elearning_sd_negeri_sukorame_1.data.model.Kelas
 import com.polinema.mi.elearning_sd_negeri_sukorame_1.data.model.Nilai
-import com.polinema.mi.elearning_sd_negeri_sukorame_1.data.model.Siswa
+import com.polinema.mi.elearning_sd_negeri_sukorame_1.data.model.User
 import com.polinema.mi.elearning_sd_negeri_sukorame_1.databinding.FragmentKepalaMonitorNilaiBinding
 
 class KepalaMonitorNilaiFragment : Fragment() {
@@ -30,19 +30,21 @@ class KepalaMonitorNilaiFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.rvNilaiMonitor.layoutManager = LinearLayoutManager(requireContext())
 
+        // Fetch data nilai
         db.collection("nilai").get().addOnSuccessListener { nilaiSnap ->
-            db.collection("siswa").get().addOnSuccessListener { siswaSnap ->
+            // Fetch data users dengan role siswa
+            db.collection("users").whereEqualTo("role", "siswa").get().addOnSuccessListener { siswaSnap ->
                 db.collection("kelas").get().addOnSuccessListener { kelasSnap ->
                     if (!isAdded) return@addOnSuccessListener
                     
                     val nilaiList = nilaiSnap.documents.mapNotNull { it.toObject(Nilai::class.java) }
-                    val siswaList = siswaSnap.documents.mapNotNull { it.toObject(Siswa::class.java)?.copy(id = it.id) }
+                    val siswaList = siswaSnap.documents.mapNotNull { it.toObject(User::class.java)?.copy(uid = it.id) }
                     val kelasList = kelasSnap.documents.mapNotNull { it.toObject(Kelas::class.java)?.copy(id = it.id) }
                     
-                    val siswaToKelas = siswaList.associate { it.id to (it.kelasId ?: "") }
+                    val siswaToKelas = siswaList.associate { it.uid to (it.kelasId ?: "") }
                     val kelasNames   = kelasList.associate { it.id to (it.namaKelas ?: "-") }
                     
-                    // Group by (kelasId, namaMapel)
+                    // Grouping berdasarkan (kelasId, namaMapel)
                     val grouped = nilaiList.groupBy { 
                         val kId = siswaToKelas[it.siswaId] ?: ""
                         kId to (it.namaMapel ?: "-")

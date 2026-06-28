@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.firestore.FirebaseFirestore
 import com.polinema.mi.elearning_sd_negeri_sukorame_1.data.model.MataPelajaranData
 import com.polinema.mi.elearning_sd_negeri_sukorame_1.data.model.Kelas
-import com.polinema.mi.elearning_sd_negeri_sukorame_1.data.model.Siswa
+import com.polinema.mi.elearning_sd_negeri_sukorame_1.data.model.User
 import com.polinema.mi.elearning_sd_negeri_sukorame_1.data.network.SessionManager
 import com.polinema.mi.elearning_sd_negeri_sukorame_1.databinding.FragmentGuruInputNilaiBinding
 
@@ -24,7 +24,7 @@ class GuruInputNilaiFragment : Fragment() {
     private val nilaiMap = mutableMapOf<String, Double>()
     private var mapelList = mutableListOf<MataPelajaranData>()
     private var kelasList = mutableListOf<Kelas>()
-    private var guruId = ""
+    private var guruUid = ""
     private var kelasId = ""
 
     override fun onCreateView(
@@ -41,10 +41,10 @@ class GuruInputNilaiFragment : Fragment() {
         sessionManager = SessionManager(requireContext())
 
         val user = sessionManager.getUser()
-        guruId = user?.idGuru ?: ""
+        guruUid = user?.uid ?: ""
         
-        if (guruId.isEmpty()) {
-            Toast.makeText(requireContext(), "Data guru tidak ditemukan", Toast.LENGTH_SHORT).show()
+        if (guruUid.isEmpty()) {
+            Toast.makeText(requireContext(), "Sesi guru berakhir", Toast.LENGTH_SHORT).show()
             parentFragmentManager.popBackStack()
             return
         }
@@ -56,7 +56,7 @@ class GuruInputNilaiFragment : Fragment() {
 
     private fun fetchKelasInfo() {
         db.collection("kelas")
-            .whereEqualTo("guruId", guruId)
+            .whereEqualTo("guruId", guruUid)
             .get()
             .addOnSuccessListener { snapshot ->
                 if (!isAdded) return@addOnSuccessListener
@@ -82,7 +82,7 @@ class GuruInputNilaiFragment : Fragment() {
                     
                     setupSpinners()
                 } else {
-                    Toast.makeText(requireContext(), "Guru belum memiliki kelas atau jadwal.", Toast.LENGTH_LONG).show()
+                    Toast.makeText(requireContext(), "Anda belum terdaftar sebagai wali kelas.", Toast.LENGTH_LONG).show()
                     binding.btnSimpanNilai.isEnabled = false
                     binding.labelKelas.visibility = View.GONE
                     binding.spinnerKelas.visibility = View.GONE
@@ -91,12 +91,12 @@ class GuruInputNilaiFragment : Fragment() {
             }
             .addOnFailureListener { e ->
                 if (!isAdded) return@addOnFailureListener
-                Toast.makeText(requireContext(), "Gagal memuat data kelas: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Gagal memuat data kelas", Toast.LENGTH_SHORT).show()
             }
     }
 
     private fun setupSpinners() {
-        db.collection("mata_pelajaran")
+        db.collection("mapel")
             .get()
             .addOnSuccessListener { snapshot ->
                 if (!isAdded) return@addOnSuccessListener
@@ -115,7 +115,7 @@ class GuruInputNilaiFragment : Fragment() {
             }
             .addOnFailureListener { e ->
                 if (!isAdded) return@addOnFailureListener
-                Toast.makeText(requireContext(), "Gagal memuat mata pelajaran: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Gagal memuat mata pelajaran", Toast.LENGTH_SHORT).show()
             }
 
         val jenisNilai = listOf("Tugas", "UH", "UTS", "UAS")
@@ -127,13 +127,15 @@ class GuruInputNilaiFragment : Fragment() {
     }
 
     private fun setupStudentList() {
-        db.collection("siswa")
+        // Mengambil siswa dari koleksi users dengan filter role 'siswa' dan kelasId
+        db.collection("users")
+            .whereEqualTo("role", "siswa")
             .whereEqualTo("kelasId", kelasId)
             .get()
             .addOnSuccessListener { snapshot ->
                 if (!isAdded) return@addOnSuccessListener
                 val students = snapshot.documents.mapNotNull { doc ->
-                    doc.toObject(Siswa::class.java)?.copy(id = doc.id)
+                    doc.toObject(User::class.java)?.copy(uid = doc.id)
                 }
                 if (students.isEmpty()) {
                     Toast.makeText(requireContext(), "Tidak ada siswa di kelas ini", Toast.LENGTH_SHORT).show()
@@ -148,7 +150,7 @@ class GuruInputNilaiFragment : Fragment() {
             }
             .addOnFailureListener { e ->
                 if (!isAdded) return@addOnFailureListener
-                Toast.makeText(requireContext(), "Gagal memuat siswa: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Gagal memuat siswa", Toast.LENGTH_SHORT).show()
             }
     }
 
@@ -174,7 +176,7 @@ class GuruInputNilaiFragment : Fragment() {
                 "siswaId" to siswaId,
                 "namaMapel" to mapelNama,
                 "mataPelajaranId" to mapelId,
-                "guruId" to guruId,
+                "guruId" to guruUid,
                 "jenisNilai" to jenisNilai,
                 "nilai" to nilaiVal,
                 "semester" to "1"
@@ -191,7 +193,7 @@ class GuruInputNilaiFragment : Fragment() {
             }
             .addOnFailureListener { e ->
                 if (!isAdded) return@addOnFailureListener
-                Toast.makeText(requireContext(), "Gagal menyimpan nilai: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Gagal menyimpan nilai", Toast.LENGTH_SHORT).show()
             }
     }
 

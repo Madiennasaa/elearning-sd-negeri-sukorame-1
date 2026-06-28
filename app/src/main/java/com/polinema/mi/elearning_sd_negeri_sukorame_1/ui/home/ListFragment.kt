@@ -77,7 +77,6 @@ class ListFragment : Fragment() {
                 }
             }
             "TUGAS" -> {
-                // Fetch both tugas and results to check completion status
                 db.collection("tugas").whereEqualTo("kelasId", kelasId).get().addOnSuccessListener { tugasSnap ->
                     db.collection("hasil_cbt").whereEqualTo("siswaId", siswaId).get().addOnSuccessListener { hasilSnap ->
                         if (!isAdded) return@addOnSuccessListener
@@ -162,19 +161,29 @@ class ListFragment : Fragment() {
                 }
             }
             "SISWA" -> {
-                db.collection("siswa").whereEqualTo("kelasId", kelasId).get().addOnSuccessListener { snap ->
-                    val data = snap.documents.mapNotNull { it.toObject(Siswa::class.java) }
-                    if (data.isEmpty()) { binding.tvTitle.text = "Belum ada siswa"; return@addOnSuccessListener }
-                    binding.rvList.adapter = ListAdapter(data.map { (it.namaLengkap ?: "-") to "NISN: ${it.nisn}" }) { pos ->
-                        val item = data[pos]
-                        com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
-                            .setTitle("Detail Siswa")
-                            .setMessage("Nama: ${item.namaLengkap}\nNISN: ${item.nisn}\nGender: ${item.jenisKelamin}\nLahir: ${item.tanggalLahir}")
-                            .setPositiveButton("Tutup", null)
-                            .show()
+                // Poin 3: Query ke koleksi 'users' dengan filter role 'siswa' dan kelasId
+                db.collection("users")
+                    .whereEqualTo("role", "siswa")
+                    .whereEqualTo("kelasId", kelasId)
+                    .get()
+                    .addOnSuccessListener { snap ->
+                        val data = snap.documents.mapNotNull { it.toObject(User::class.java)?.copy(uid = it.id) }
+                        if (data.isEmpty()) { binding.tvTitle.text = "Belum ada siswa"; return@addOnSuccessListener }
+                        binding.rvList.adapter = ListAdapter(data.map { (it.name ?: "-") to "NISN: ${it.nisn}" }) { pos ->
+                            val item = data[pos]
+                            com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+                                .setTitle("Detail Siswa")
+                                .setMessage("Nama: ${item.name}\nNISN: ${item.nisn}\nGender: ${item.jenisKelamin}\nLahir: ${item.tanggalLahir}")
+                                .setPositiveButton("Tutup", null)
+                                .show()
+                        }
                     }
-                }
             }
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

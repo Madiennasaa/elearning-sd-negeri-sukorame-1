@@ -8,7 +8,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.google.firebase.firestore.FirebaseFirestore
 import com.polinema.mi.elearning_sd_negeri_sukorame_1.data.model.Kelas
-import com.polinema.mi.elearning_sd_negeri_sukorame_1.data.model.Siswa
+import com.polinema.mi.elearning_sd_negeri_sukorame_1.data.model.User
 import com.polinema.mi.elearning_sd_negeri_sukorame_1.data.network.SessionManager
 import com.polinema.mi.elearning_sd_negeri_sukorame_1.databinding.FragmentDashboardWaliBinding
 
@@ -41,14 +41,15 @@ class DashboardWaliFragment : Fragment() {
             return
         }
 
-        db.collection("siswa").document(siswaId).get()
+        // Query ke koleksi users dengan ID siswa (anak)
+        db.collection("users").document(siswaId).get()
             .addOnSuccessListener { doc ->
                 if (!isAdded) return@addOnSuccessListener
-                val siswa = doc.toObject(Siswa::class.java)?.copy(id = doc.id)
+                val siswa = doc.toObject(User::class.java)?.copy(uid = doc.id)
                 if (siswa != null) {
-                    resolvedSiswaId = siswa.id
+                    resolvedSiswaId = siswa.uid
                     resolvedKelasId = siswa.kelasId ?: ""
-                    binding.tvChildName.text = siswa.namaLengkap ?: "Ananda"
+                    binding.tvChildName.text = siswa.name ?: "Ananda"
 
                     if (resolvedKelasId.isNotEmpty()) {
                         fetchKelasName(resolvedKelasId)
