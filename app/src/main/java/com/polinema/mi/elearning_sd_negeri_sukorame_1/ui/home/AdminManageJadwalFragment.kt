@@ -13,6 +13,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.polinema.mi.elearning_sd_negeri_sukorame_1.data.model.Kelas
 import com.polinema.mi.elearning_sd_negeri_sukorame_1.data.model.MataPelajaranData
 import com.polinema.mi.elearning_sd_negeri_sukorame_1.data.model.Jadwal
+import com.polinema.mi.elearning_sd_negeri_sukorame_1.data.model.User
 import com.polinema.mi.elearning_sd_negeri_sukorame_1.databinding.FragmentAdminManageJadwalBinding
 
 class AdminManageJadwalFragment : Fragment() {
@@ -22,7 +23,7 @@ class AdminManageJadwalFragment : Fragment() {
     private lateinit var adapter: JadwalAdapter
     private val db = FirebaseFirestore.getInstance()
 
-    private var guruList  = listOf<com.polinema.mi.elearning_sd_negeri_sukorame_1.data.model.User>()
+    private var guruList  = listOf<User>()
     private var kelasList = listOf<Kelas>()
     private var mapelList = listOf<MataPelajaranData>()
     private val hariList  = listOf("Senin","Selasa","Rabu","Kamis","Jumat","Sabtu")
@@ -35,7 +36,6 @@ class AdminManageJadwalFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // FUNGSI TOMBOL KEMBALI
         binding.btnBack.setOnClickListener {
             parentFragmentManager.popBackStack()
         }
@@ -67,22 +67,22 @@ class AdminManageJadwalFragment : Fragment() {
     private fun loadMasterData() {
         db.collection("users").whereEqualTo("role", "guru").get().addOnSuccessListener { gSnap ->
             if (!isAdded) return@addOnSuccessListener
-            guruList = gSnap.documents.mapNotNull { it.toObject(com.polinema.mi.elearning_sd_negeri_sukorame_1.data.model.User::class.java)?.copy(uid = it.id) }
-            
+            guruList = gSnap.documents.mapNotNull { it.toObject(User::class.java)?.copy(uid = it.id) }
+
             db.collection("kelas").get().addOnSuccessListener { kSnap ->
                 if (!isAdded) return@addOnSuccessListener
                 kelasList = kSnap.documents.mapNotNull { it.toObject(Kelas::class.java)?.copy(id = it.id) }
-                
+
                 db.collection("mapel").get().addOnSuccessListener { mSnap ->
                     if (!isAdded) return@addOnSuccessListener
                     mapelList = mSnap.documents.mapNotNull { it.toObject(MataPelajaranData::class.java)?.copy(id = it.id) }
-                    
+
                     setupSpinners()
                     loadJadwal()
                 }
             }
         }.addOnFailureListener {
-            Toast.makeText(requireContext(), "Gagal memuat data master", Toast.LENGTH_SHORT).show()
+            if (isAdded) Toast.makeText(requireContext(), "Gagal memuat data master", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -101,18 +101,17 @@ class AdminManageJadwalFragment : Fragment() {
                     .filter { !it.namaMapel.isNullOrEmpty() && !it.namaKelas.isNullOrEmpty() }
                 adapter.updateData(data)
             }
-            .addOnFailureListener { /* silent */ }
     }
 
     private fun simpanJadwal() {
         val jamMulai = binding.etJamMulai.text.toString().trim()
         val jamSelesai = binding.etJamSelesai.text.toString().trim()
-        
+
         if (jamMulai.isEmpty() || jamSelesai.isEmpty()) {
             Toast.makeText(requireContext(), "Jam harus diisi", Toast.LENGTH_SHORT).show()
             return
         }
-        
+
         if (guruList.isEmpty() || kelasList.isEmpty() || mapelList.isEmpty()) {
             Toast.makeText(requireContext(), "Data master belum dimuat", Toast.LENGTH_SHORT).show()
             return
@@ -123,20 +122,16 @@ class AdminManageJadwalFragment : Fragment() {
         val selectedMapel = mapelList[binding.spinnerMapel.selectedItemPosition]
         val selectedHari = hariList[binding.spinnerHari.selectedItemPosition]
 
-        // --- VALIDASI BENTROK JADWAL (ASYNCHRONOUS) ---
+        // Validasi bentrok
         db.collection("jadwal")
             .whereEqualTo("hari", selectedHari)
             .whereEqualTo("guruId", selectedGuru.uid)
             .get()
             .addOnSuccessListener { snapshot ->
                 var isBentrok = false
-                
                 for (doc in snapshot.documents) {
                     val existingMulai = doc.getString("waktuMulai") ?: ""
                     val existingSelesai = doc.getString("waktuSelesai") ?: ""
-                    
-                    // Logika Overlap: (StartA < EndB) && (EndA > StartB)
-                    // Menggunakan pembandingan String untuk format HH:mm (e.g. "07:00" < "08:00")
                     if (jamMulai < existingSelesai && jamSelesai > existingMulai) {
                         isBentrok = true
                         break
@@ -144,47 +139,49 @@ class AdminManageJadwalFragment : Fragment() {
                 }
 
                 if (isBentrok) {
-                    Toast.makeText(requireContext(), "Guru ini sudah memiliki jadwal mengajar di hari dan jam tersebut!", Toast.LENGTH_LONG).show()
+                    Toast.makeText(requireContext(), "Guru bentrok jadwal!", Toast.LENGTH_LONG).show()
                 } else {
-                    // Jika tidak bentrok, eksekusi penyimpanan
                     executeInsertJadwal(jamMulai, jamSelesai, selectedGuru, selectedKelas, selectedMapel, selectedHari)
                 }
-            }
-            .addOnFailureListener {
-                Toast.makeText(requireContext(), "Gagal melakukan validasi jadwal", Toast.LENGTH_SHORT).show()
             }
     }
 
     private fun executeInsertJadwal(
         jamMulai: String,
         jamSelesai: String,
-        selectedGuru: com.polinema.mi.elearning_sd_negeri_sukorame_1.data.model.User,
+        selectedGuru: User,
         selectedKelas: Kelas,
         selectedMapel: MataPelajaranData,
         selectedHari: String
     ) {
-        val data = hashMapOf(
-            "guruId"      to selectedGuru.uid,
-            "namaGuru"    to (selectedGuru.name ?: "Guru"),
-            "kelasId"     to selectedKelas.id,
-            "namaKelas"   to (selectedKelas.namaKelas ?: "-"),
-            "mapelId"     to selectedMapel.id,
-            "namaMapel"   to (selectedMapel.nama ?: "Mapel"),
-            "hari"        to selectedHari,
-            "waktuMulai"   to jamMulai,
-            "waktuSelesai" to jamSelesai,
-            "tahunAjaran" to "2024/2025"
+        // 1. Dapatkan referensi dokumen kosong untuk Auto-ID
+        val docRef = db.collection("jadwal").document()
+
+        // 2. Susun objek Jadwal (Denormalisasi: ID + Nama)
+        val newJadwal = Jadwal(
+            id = docRef.id, // Simpan Auto-ID ke field id
+            kelasId = selectedKelas.id,
+            mapelId = selectedMapel.id,
+            guruId = selectedGuru.uid,
+            hari = selectedHari,
+            waktuMulai = jamMulai,
+            waktuSelesai = jamSelesai,
+            namaMapel = selectedMapel.nama,
+            namaGuru = selectedGuru.name,
+            namaKelas = selectedKelas.namaKelas
         )
 
-        db.collection("jadwal").add(data)
+        // 3. Simpan ke Firestore
+        docRef.set(newJadwal)
             .addOnSuccessListener {
+                if (!isAdded) return@addOnSuccessListener
                 Toast.makeText(requireContext(), "Jadwal berhasil ditambahkan", Toast.LENGTH_SHORT).show()
                 binding.etJamMulai.text.clear()
                 binding.etJamSelesai.text.clear()
                 loadJadwal()
             }
             .addOnFailureListener {
-                Toast.makeText(requireContext(), "Gagal menyimpan jadwal", Toast.LENGTH_SHORT).show()
+                if (isAdded) Toast.makeText(requireContext(), "Gagal menyimpan jadwal", Toast.LENGTH_SHORT).show()
             }
     }
 
