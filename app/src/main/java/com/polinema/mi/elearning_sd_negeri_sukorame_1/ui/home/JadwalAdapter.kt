@@ -10,7 +10,7 @@ import com.polinema.mi.elearning_sd_negeri_sukorame_1.R
 import com.polinema.mi.elearning_sd_negeri_sukorame_1.data.model.Jadwal
 
 class JadwalAdapter(
-    private val items: MutableList<Jadwal> = mutableListOf(),
+    private val items: MutableList<Jadwal>,
     private val onEditClick: (Jadwal) -> Unit,
     private val onDeleteClick: (Jadwal) -> Unit
 ) : RecyclerView.Adapter<JadwalAdapter.VH>() {
@@ -29,12 +29,12 @@ class JadwalAdapter(
     )
 
     inner class VH(v: View) : RecyclerView.ViewHolder(v) {
-        val stripJadwal: View    = v.findViewById(R.id.stripJadwal)
+        val stripJadwal: View = v.findViewById(R.id.stripJadwal)
         val tvJamMulai: TextView = v.findViewById(R.id.tvJamMulai)
         val tvJamSelesai: TextView = v.findViewById(R.id.tvJamSelesai)
         val tvNamaMapel: TextView = v.findViewById(R.id.tvNamaMapel)
-        val tvNamaGuru: TextView  = v.findViewById(R.id.tvNamaGuru)
-        val tvDurasi: TextView    = v.findViewById(R.id.tvDurasi)
+        val tvNamaGuru: TextView = v.findViewById(R.id.tvNamaGuru)
+        val tvDurasi: TextView = v.findViewById(R.id.tvDurasi)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
@@ -44,46 +44,37 @@ class JadwalAdapter(
 
     override fun onBindViewHolder(holder: VH, position: Int) {
         val jadwal = items[position]
-        val color  = Color.parseColor(stripColors[position % stripColors.size])
+        val color = Color.parseColor(stripColors[position % stripColors.size])
 
         holder.stripJadwal.setBackgroundColor(color)
-
-        holder.tvJamMulai.text   = jadwal.waktuMulai ?: "-"
+        holder.tvJamMulai.text = jadwal.waktuMulai ?: "-"
         holder.tvJamSelesai.text = jadwal.waktuSelesai ?: "-"
         holder.tvJamMulai.setTextColor(color)
 
         holder.tvNamaMapel.text = jadwal.namaMapel ?: "-"
-        holder.tvNamaGuru.text  = if (isGuruView) {
+        holder.tvNamaGuru.text = if (isGuruView) {
             "Kelas: " + (jadwal.namaKelas ?: "-")
         } else {
-            jadwal.namaGuru?.takeIf { it != "-" } ?: "—"
+            jadwal.namaGuru?.takeIf { it != "-" && it.isNotEmpty() } ?: "—"
         }
 
-        // Hitung durasi menit dari jam
-        holder.tvDurasi.text = hitungDurasi(
-            jadwal.waktuMulai ?: "",
-            jadwal.waktuSelesai ?: ""
-        )
+        holder.tvDurasi.text = hitungDurasi(jadwal.waktuMulai ?: "", jadwal.waktuSelesai ?: "")
 
-        // Klik untuk Edit
-        holder.itemView.setOnClickListener {
-            onEditClick(jadwal)
-        }
-
-        // Tahan lama untuk Hapus
+        holder.itemView.setOnClickListener { onEditClick(jadwal) }
         holder.itemView.setOnLongClickListener {
             onDeleteClick(jadwal)
             true
         }
     }
 
-    private fun hitungDurasi(mulai: String, selesai: String): String {
+    private fun hitungDurasi(mulai: String, sel: String): String {
         return try {
-            val separator = if (mulai.contains(":")) ":" else "."
-            val (hM, mM) = mulai.split(separator).map { it.toInt() }
-            val (hS, mS) = selesai.split(separator).map { it.toInt() }
-            val durasi = (hS * 60 + mS) - (hM * 60 + mM)
-            if (durasi > 0) "$durasi mnt" else "-"
+            val sep = if (mulai.contains(":")) ":" else "."
+            val mP = mulai.split(sep)
+            val sP = sel.split(sep)
+            val dur = (sP[0].trim().toInt() * 60 + sP[1].trim().toInt()) - 
+                      (mP[0].trim().toInt() * 60 + mP[1].trim().toInt())
+            if (dur > 0) "$dur mnt" else "-"
         } catch (_: Exception) { "-" }
     }
 }
