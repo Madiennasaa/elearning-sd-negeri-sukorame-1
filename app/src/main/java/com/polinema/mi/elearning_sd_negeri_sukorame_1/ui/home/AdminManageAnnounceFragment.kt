@@ -41,13 +41,11 @@ class AdminManageAnnounceFragment : Fragment() {
     }
 
     private fun loadData() {
-        // Poin 2: Query pengambilan data dan pemetaan manual untuk memastikan ID sinkron
         db.collection("pengumuman")
             .get()
             .addOnSuccessListener { snapshot ->
                 if (!isAdded) return@addOnSuccessListener
                 listAnnounce.clear()
-                // Menggunakan mapNotNull dan copy(id = doc.id) agar field id selalu berisi ID dokumen asli
                 val data = snapshot.documents.mapNotNull { doc ->
                     doc.toObject(Pengumuman::class.java)?.copy(id = doc.id)
                 }
@@ -92,14 +90,11 @@ class AdminManageAnnounceFragment : Fragment() {
                 }
 
                 val now = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date())
-                
-                // Poin 1: Dapatkan reference dokumen (baru atau lama)
                 val docRef = if (isEdit) db.collection("pengumuman").document(p!!.id) 
                              else db.collection("pengumuman").document()
 
-                // Menyusun objek Pengumuman yang bersih
                 val newPengumuman = Pengumuman(
-                    id = docRef.id, // ID dokumen otomatis dari Firestore
+                    id = docRef.id,
                     judul = judul,
                     isi = isi,
                     kategori = spKategori.selectedItem.toString(),
@@ -144,19 +139,38 @@ class AdminManageAnnounceFragment : Fragment() {
         private val onEdit: (Pengumuman) -> Unit,
         private val onDelete: (Pengumuman) -> Unit
     ) : RecyclerView.Adapter<AnnounceAdapter.VH>() {
+        
         inner class VH(v: View) : RecyclerView.ViewHolder(v) {
             val tvJudul: TextView  = v.findViewById(R.id.tvJudul)
-            val tvKet: TextView    = v.findViewById(R.id.tvKategori)
+            val tvKat: TextView    = v.findViewById(R.id.tvKategori)
+            val tvStatus: TextView = v.findViewById(R.id.tvStatus)
+            val tvIsi: TextView    = v.findViewById(R.id.tvIsi)
+            val btnToggle: Button  = v.findViewById(R.id.btnToggle)
             val btnEdit: ImageButton = v.findViewById(R.id.btnEdit)
             val btnDelete: ImageButton = v.findViewById(R.id.btnDelete)
         }
+        
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
             VH(LayoutInflater.from(parent.context).inflate(R.layout.item_announce, parent, false))
+            
         override fun getItemCount() = list.size
+        
         override fun onBindViewHolder(h: VH, pos: Int) {
             val p = list[pos]
             h.tvJudul.text = p.judul
-            h.tvKet.text   = "${p.kategori} • Untuk: ${p.untuk} • ${p.tanggal?.take(10)}"
+            h.tvKat.text   = p.kategori?.uppercase()
+            h.tvStatus.text = "Untuk: ${p.untuk} • ${p.tanggal?.take(10)}"
+            h.tvIsi.text   = p.isi
+            
+            // Logika sederhana expanded/collapsed (opsional, default tampil singkat)
+            var isExpanded = false
+            h.tvIsi.maxLines = 2
+            h.btnToggle.setOnClickListener {
+                isExpanded = !isExpanded
+                h.tvIsi.maxLines = if (isExpanded) Int.MAX_VALUE else 2
+                h.btnToggle.text = if (isExpanded) "Tutup" else "Lihat Selengkapnya"
+            }
+
             h.btnEdit.setOnClickListener { onEdit(p) }
             h.btnDelete.setOnClickListener { onDelete(p) }
         }

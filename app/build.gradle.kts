@@ -35,20 +35,19 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-
-    // Blok kotlinOptions yang bikin error tadi diapus aja.
-    // Di AGP 9, jvmTarget otomatis ngikutin targetCompatibility dari Java di atas!
 }
 
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
-    implementation("com.google.android.material:material:1.11.0")
+    
+    // Tambahkan CardView secara eksplisit
+    implementation("androidx.cardview:cardview:1.0.0")
+
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
 
-    // Networking Dependencies
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
@@ -56,6 +55,7 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.1.1"))
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-firestore-ktx")
+    implementation(libs.google.material)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
