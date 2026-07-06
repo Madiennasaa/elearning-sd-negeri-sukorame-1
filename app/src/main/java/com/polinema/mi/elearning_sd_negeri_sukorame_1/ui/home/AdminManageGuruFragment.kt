@@ -19,10 +19,10 @@ class AdminManageGuruFragment : Fragment() {
 
     private var _binding: FragmentAdminManageGuruBinding? = null
     private val binding get() = _binding!!
-    private var listGuru = mutableListOf<User>()
-    private var allKelas = mutableListOf<Kelas>()
-    private lateinit var adapter: GuruAdapter
     private val db = FirebaseFirestore.getInstance()
+    private var listGuru = mutableListOf<User>()
+    private var listKelas = mutableListOf<Kelas>()
+    private lateinit var guruAdapter: GuruAdapter
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentAdminManageGuruBinding.inflate(inflater, container, false)
@@ -31,27 +31,28 @@ class AdminManageGuruFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        
-        binding.btnBack.setOnClickListener { parentFragmentManager.popBackStack() }
-
-        adapter = GuruAdapter(listGuru, { u -> showGuruDialog(u) }, { u -> confirmDelete(u) })
-        binding.rvGuru.layoutManager = LinearLayoutManager(requireContext())
-        binding.rvGuru.adapter = adapter
-        
+        setupRecyclerView()
         loadKelas()
-        loadData()
-        
+        loadGuru()
+        binding.btnBack.setOnClickListener { parentFragmentManager.popBackStack() }
         binding.btnAddGuru.setOnClickListener { showGuruDialog(null) }
+    }
+
+    private fun setupRecyclerView() {
+        guruAdapter = GuruAdapter(listGuru, { showGuruDialog(it) }, { confirmDelete(it) })
+        binding.rvGuru.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = guruAdapter
+        }
     }
 
     private fun loadKelas() {
         db.collection("kelas").get().addOnSuccessListener { snapshot ->
-            allKelas = snapshot.documents.mapNotNull { it.toObject(Kelas::class.java)?.copy(id = it.id) }.toMutableList()
-            adapter.notifyDataSetChanged()
+            listKelas = snapshot.documents.mapNotNull { it.toObject(Kelas::class.java)?.copy(id = it.id) }.toMutableList()
         }
     }
 
-    private fun loadData() {
+    private fun loadGuru() {
         db.collection("users")
             .whereEqualTo("role", "guru")
             .get()
@@ -59,135 +60,120 @@ class AdminManageGuruFragment : Fragment() {
                 if (!isAdded) return@addOnSuccessListener
                 listGuru.clear()
                 listGuru.addAll(snapshot.documents.mapNotNull { it.toObject(User::class.java)?.copy(uid = it.id) })
-                adapter.notifyDataSetChanged()
+                guruAdapter.notifyDataSetChanged()
             }
             .addOnFailureListener {
-                if (isAdded) Toast.makeText(requireContext(), "Gagal memuat guru", Toast.LENGTH_SHORT).show()
+                if (isAdded) Toast.makeText(requireContext(), "Gagal memuat data", Toast.LENGTH_SHORT).show()
             }
     }
 
     private fun showGuruDialog(guru: User?) {
-        val isEdit = guru != null
         val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_guru_form, null)
-        
         val etNama = dialogView.findViewById<EditText>(R.id.etNamaGuruForm)
-        val etNip  = dialogView.findViewById<EditText>(R.id.etNipGuruForm)
+        val etNip = dialogView.findViewById<EditText>(R.id.etNipGuruForm)
         val etNoHp = dialogView.findViewById<EditText>(R.id.etNoHpGuruForm)
         val spTipe = dialogView.findViewById<Spinner>(R.id.spJenisGuru)
         val spKelas = dialogView.findViewById<Spinner>(R.id.spKelasGuru)
 
-        val tipeList = listOf("Umum", "Mulok")
-        spTipe.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, tipeList)
-        
-        val kelasNames = mutableListOf("Tanpa Kelas")
-        kelasNames.addAll(allKelas.map { it.namaKelas ?: it.id })
+        val tipeOptions = listOf("umum", "mulok")
+        spTipe.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, tipeOptions.map { it.uppercase() })
+
+        val kelasNames = mutableListOf("Bukan Wali Kelas")
+        kelasNames.addAll(listKelas.map { it.namaKelas ?: it.id })
         spKelas.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, kelasNames)
 
-        if (isEdit && guru != null) {
-            etNama.setText(guru.name)
-            etNip.setText(guru.nip)
-            etNoHp.setText(guru.noHp)
-            
-            val tPos = tipeList.indexOf(guru.tipeGuru?.replaceFirstChar { it.uppercase() })
-            if (tPos >= 0) spTipe.setSelection(tPos)
-            
-            guru.kelasId?.let { kId ->
-                val kPos = allKelas.indexOfFirst { it.id == kId }
-                if (kPos >= 0) spKelas.setSelection(kPos + 1)
-            }
+        guru?.let {
+            etNama.setText(it.name)
+            etNip.setText(it.nip)
+            etNoHp.setText(it.noHp)
+            spTipe.setSelection(tipeOptions.indexOf(it.tipeGuru?.lowercase() ?: "umum").coerceAtLeast(0))
+            val kIdx = listKelas.indexOfFirst { k -> k.id == it.kelasId }
+            if (kIdx >= 0) spKelas.setSelection(kIdx + 1)
         }
 
         AlertDialog.Builder(requireContext())
-            .setTitle(if (isEdit) "Edit Guru" else "Tambah Guru")
+            .setTitle(if (guru == null) "Tambah Guru" else "Edit Guru")
             .setView(dialogView)
             .setPositiveButton("Simpan") { _, _ ->
                 val nama = etNama.text.toString().trim()
-                val nip  = etNip.text.toString().trim()
+                val nip = etNip.text.toString().trim()
                 val noHp = etNoHp.text.toString().trim()
-                val tipe = spTipe.selectedItem.toString().lowercase()
-                val kIdx = spKelas.selectedItemPosition
-                val kId  = if (kIdx > 0) allKelas[kIdx - 1].id else null
+                val tipe = tipeOptions[spTipe.selectedItemPosition]
+                val kPos = spKelas.selectedItemPosition
+                val kId = if (kPos > 0) listKelas[kPos - 1].id else null
 
-                if (nama.isEmpty()) { 
-                    Toast.makeText(context, "Nama wajib diisi", Toast.LENGTH_SHORT).show()
-                    return@setPositiveButton 
-                }
-                
-                val userObj = User(
-                    uid = guru?.uid ?: "",
+                if (nama.isEmpty()) return@setPositiveButton
+
+                val userObj = (guru ?: User()).copy(
                     name = nama,
                     nip = nip,
                     noHp = noHp,
                     role = "guru",
                     tipeGuru = tipe,
                     kelasId = kId,
-                    idSiswa = null,
                     email = guru?.email ?: "guru_${nip.ifEmpty { System.currentTimeMillis() }}@sukorame.sch.id"
                 )
 
-                val docRef = if (isEdit) {
-                    db.collection("users").document(guru!!.uid)
-                } else {
-                    db.collection("users").document()
-                }
-
-                val finalUser = if (isEdit) userObj else userObj.copy(uid = docRef.id)
-
-                docRef.set(finalUser)
+                val docRef = if (guru == null) db.collection("users").document() else db.collection("users").document(guru.uid)
+                docRef.set(if (guru == null) userObj.copy(uid = docRef.id) else userObj)
                     .addOnSuccessListener {
-                        Toast.makeText(context, "Data guru berhasil disimpan", Toast.LENGTH_SHORT).show()
-                        loadData()
+                        Toast.makeText(context, "Berhasil disimpan", Toast.LENGTH_SHORT).show()
+                        loadGuru()
                     }
-                    .addOnFailureListener {
-                        Toast.makeText(context, "Gagal menyimpan", Toast.LENGTH_SHORT).show()
-                    }
-            }.setNegativeButton("Batal", null).show()
+            }
+            .setNegativeButton("Batal", null)
+            .show()
     }
 
     private fun confirmDelete(guru: User) {
-        AlertDialog.Builder(requireContext()).setMessage("Hapus guru ${guru.name}?")
+        AlertDialog.Builder(requireContext())
+            .setMessage("Hapus data ${guru.name}?")
             .setPositiveButton("Hapus") { _, _ ->
-                db.collection("users").document(guru.uid).delete()
-                    .addOnSuccessListener {
-                        Toast.makeText(requireContext(), "Data guru dihapus", Toast.LENGTH_SHORT).show()
-                        loadData()
-                    }
-            }.show()
+                db.collection("users").document(guru.uid).delete().addOnSuccessListener { loadGuru() }
+            }
+            .setNegativeButton("Batal", null)
+            .show()
     }
 
-    override fun onDestroyView() { super.onDestroyView(); _binding = null }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 
-    inner class GuruAdapter(var list: List<User>, val onEdit: (User)->Unit, val onDelete: (User)->Unit) : RecyclerView.Adapter<GuruAdapter.VH>() {
+    inner class GuruAdapter(
+        private val list: List<User>,
+        private val onEdit: (User) -> Unit,
+        private val onDelete: (User) -> Unit
+    ) : RecyclerView.Adapter<GuruAdapter.VH>() {
+
         inner class VH(v: View) : RecyclerView.ViewHolder(v) {
-            val ivFoto: ImageView  = v.findViewById(R.id.ivFotoGuru)
-            val tvNama: TextView   = v.findViewById(R.id.tvNamaGuru)
-            val tvNip: TextView    = v.findViewById(R.id.tvNipGuru)
+            val ivFoto: ImageView = v.findViewById(R.id.ivFotoGuru)
+            val tvNama: TextView = v.findViewById(R.id.tvNamaGuru)
+            val tvNip: TextView = v.findViewById(R.id.tvNipGuru)
             val tvStatus: TextView = v.findViewById(R.id.tvStatusGuru)
-            val tvKelas: TextView  = v.findViewById(R.id.tvKelasGuru)
+            val tvKelas: TextView = v.findViewById(R.id.tvKelasGuru)
             val btnEdit: ImageButton = v.findViewById(R.id.btnEditGuru)
             val btnDelete: ImageButton = v.findViewById(R.id.btnDeleteGuru)
         }
-        override fun onCreateViewHolder(p: ViewGroup, t: Int) = VH(LayoutInflater.from(p.context).inflate(R.layout.item_guru, p, false))
-        override fun getItemCount() = list.size
-        
-        override fun onBindViewHolder(h: VH, pos: Int) {
-            val g = list[pos]
-            
-            if (g.foto.isNullOrEmpty()) {
-                h.ivFoto.setImageResource(R.drawable.ic_user_solid)
-            } else {
-                h.ivFoto.setImageResource(R.drawable.ic_user_solid)
-            }
 
-            h.tvNama.text   = g.name
-            h.tvNip.text    = "NIP: ${g.nip ?: "-"}"
-            h.tvStatus.text = "Tipe: ${g.tipeGuru ?: "umum"}"
-            
-            val kelas = allKelas.find { it.id == g.kelasId }
-            h.tvKelas.text  = "Kelas: ${kelas?.namaKelas ?: "Bukan Wali Kelas"}"
-
-            h.btnEdit.setOnClickListener { onEdit(g) }
-            h.btnDelete.setOnClickListener { onDelete(g) }
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
+            val view = LayoutInflater.from(parent.context).inflate(R.layout.item_guru, parent, false)
+            return VH(view)
         }
+
+        override fun onBindViewHolder(holder: VH, position: Int) {
+            val guru = list[position]
+            holder.tvNama.text = guru.name ?: "-"
+            holder.tvNip.text = "NIP: ${guru.nip ?: "-"}"
+            holder.tvStatus.text = "Tipe: ${guru.tipeGuru ?: "umum"}"
+            holder.tvKelas.text = "Kelas: ${guru.kelasId ?: "-"}"
+            
+            holder.ivFoto.setImageResource(R.drawable.ic_user_solid)
+            
+            holder.btnEdit.setOnClickListener { onEdit(guru) }
+            holder.btnDelete.setOnClickListener { onDelete(guru) }
+        }
+
+        override fun getItemCount(): Int = list.size
     }
 }
