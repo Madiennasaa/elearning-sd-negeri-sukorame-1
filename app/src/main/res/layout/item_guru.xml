@@ -23,11 +23,10 @@
             android:layout_height="48dp"
             android:scaleType="centerCrop"
             android:layout_marginEnd="12dp"
-            app:shapeAppearanceOverlay="@style/ShapeAppearance.MaterialComponents.SmallComponent"
-            android:background="?attr/colorPrimaryContainer"
-            android:padding="2dp"
-            app:strokeColor="?attr/colorPrimary"
-            app:strokeWidth="1dp" />
+            android:padding="1dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="@color/primary_purple"
+            app:cornerSize="24dp" />
 
         <LinearLayout
             android:layout_width="0dp"
