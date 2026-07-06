@@ -52,7 +52,6 @@ class AdminManageGuruFragment : Fragment() {
     }
 
     private fun loadData() {
-        // Poin 1: Ambil data dari collection 'users' dengan filter role 'guru'
         db.collection("users")
             .whereEqualTo("role", "guru")
             .get()
@@ -77,7 +76,6 @@ class AdminManageGuruFragment : Fragment() {
         val spTipe = dialogView.findViewById<Spinner>(R.id.spJenisGuru)
         val spKelas = dialogView.findViewById<Spinner>(R.id.spKelasGuru)
 
-        // Setup Spinners
         val tipeList = listOf("Umum", "Mulok")
         spTipe.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, tipeList)
         
@@ -115,7 +113,6 @@ class AdminManageGuruFragment : Fragment() {
                     return@setPositiveButton 
                 }
                 
-                // Poin 2: Membuat objek User dengan role guru dan field pendukung
                 val userObj = User(
                     uid = guru?.uid ?: "",
                     name = nama,
@@ -124,14 +121,14 @@ class AdminManageGuruFragment : Fragment() {
                     role = "guru",
                     tipeGuru = tipe,
                     kelasId = kId,
-                    idSiswa = null, // Dikosongkan sesuai aturan
+                    idSiswa = null,
                     email = guru?.email ?: "guru_${nip.ifEmpty { System.currentTimeMillis() }}@sukorame.sch.id"
                 )
 
                 val docRef = if (isEdit) {
                     db.collection("users").document(guru!!.uid)
                 } else {
-                    db.collection("users").document() // Atau menggunakan add() jika ingin ID auto
+                    db.collection("users").document()
                 }
 
                 val finalUser = if (isEdit) userObj else userObj.copy(uid = docRef.id)
@@ -162,6 +159,7 @@ class AdminManageGuruFragment : Fragment() {
 
     inner class GuruAdapter(var list: List<User>, val onEdit: (User)->Unit, val onDelete: (User)->Unit) : RecyclerView.Adapter<GuruAdapter.VH>() {
         inner class VH(v: View) : RecyclerView.ViewHolder(v) {
+            val ivFoto: ImageView  = v.findViewById(R.id.ivFotoGuru)
             val tvNama: TextView   = v.findViewById(R.id.tvNamaGuru)
             val tvNip: TextView    = v.findViewById(R.id.tvNipGuru)
             val tvStatus: TextView = v.findViewById(R.id.tvStatusGuru)
@@ -172,9 +170,15 @@ class AdminManageGuruFragment : Fragment() {
         override fun onCreateViewHolder(p: ViewGroup, t: Int) = VH(LayoutInflater.from(p.context).inflate(R.layout.item_guru, p, false))
         override fun getItemCount() = list.size
         
-        // Poin 3: Sesuaikan ViewHolder untuk membaca langsung dari properti User
         override fun onBindViewHolder(h: VH, pos: Int) {
             val g = list[pos]
+            
+            if (g.foto.isNullOrEmpty()) {
+                h.ivFoto.setImageResource(R.drawable.ic_user_solid)
+            } else {
+                h.ivFoto.setImageResource(R.drawable.ic_user_solid)
+            }
+
             h.tvNama.text   = g.name
             h.tvNip.text    = "NIP: ${g.nip ?: "-"}"
             h.tvStatus.text = "Tipe: ${g.tipeGuru ?: "umum"}"
