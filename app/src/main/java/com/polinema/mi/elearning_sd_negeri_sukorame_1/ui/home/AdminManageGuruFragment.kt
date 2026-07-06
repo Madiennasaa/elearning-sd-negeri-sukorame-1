@@ -32,8 +32,7 @@ class AdminManageGuruFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupRecyclerView()
-        loadKelas()
-        loadGuru()
+        loadData()
         binding.btnBack.setOnClickListener { parentFragmentManager.popBackStack() }
         binding.btnAddGuru.setOnClickListener { showGuruDialog(null) }
     }
@@ -46,9 +45,10 @@ class AdminManageGuruFragment : Fragment() {
         }
     }
 
-    private fun loadKelas() {
+    private fun loadData() {
         db.collection("kelas").get().addOnSuccessListener { snapshot ->
             listKelas = snapshot.documents.mapNotNull { it.toObject(Kelas::class.java)?.copy(id = it.id) }.toMutableList()
+            loadGuru()
         }
     }
 
@@ -63,7 +63,7 @@ class AdminManageGuruFragment : Fragment() {
                 guruAdapter.notifyDataSetChanged()
             }
             .addOnFailureListener {
-                if (isAdded) Toast.makeText(requireContext(), "Gagal memuat data", Toast.LENGTH_SHORT).show()
+                if (isAdded) Toast.makeText(requireContext(), "Gagal memuat data guru", Toast.LENGTH_SHORT).show()
             }
     }
 
@@ -118,7 +118,7 @@ class AdminManageGuruFragment : Fragment() {
                 docRef.set(if (guru == null) userObj.copy(uid = docRef.id) else userObj)
                     .addOnSuccessListener {
                         Toast.makeText(context, "Berhasil disimpan", Toast.LENGTH_SHORT).show()
-                        loadGuru()
+                        loadData()
                     }
             }
             .setNegativeButton("Batal", null)
@@ -162,16 +162,18 @@ class AdminManageGuruFragment : Fragment() {
         }
 
         override fun onBindViewHolder(holder: VH, position: Int) {
-            val guru = list[position]
-            holder.tvNama.text = guru.name ?: "-"
-            holder.tvNip.text = "NIP: ${guru.nip ?: "-"}"
-            holder.tvStatus.text = "Tipe: ${guru.tipeGuru ?: "umum"}"
-            holder.tvKelas.text = "Kelas: ${guru.kelasId ?: "-"}"
+            val g = list[position]
+            holder.tvNama.text = g.name ?: "-"
+            holder.tvNip.text = "NIP: ${g.nip ?: "-"}"
+            holder.tvStatus.text = "Tipe: ${g.tipeGuru ?: "umum"}"
+            
+            val kelasData = listKelas.find { it.id == g.kelasId }
+            holder.tvKelas.text = "Wali Kelas: ${kelasData?.namaKelas ?: "-"}"
             
             holder.ivFoto.setImageResource(R.drawable.ic_user_solid)
             
-            holder.btnEdit.setOnClickListener { onEdit(guru) }
-            holder.btnDelete.setOnClickListener { onDelete(guru) }
+            holder.btnEdit.setOnClickListener { onEdit(g) }
+            holder.btnDelete.setOnClickListener { onDelete(g) }
         }
 
         override fun getItemCount(): Int = list.size
