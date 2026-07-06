@@ -9,6 +9,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.google.firebase.firestore.FirebaseFirestore
 import com.polinema.mi.elearning_sd_negeri_sukorame_1.R
 import com.polinema.mi.elearning_sd_negeri_sukorame_1.data.model.Kelas
@@ -170,7 +171,11 @@ class AdminManageGuruFragment : Fragment() {
             val kelasData = listKelas.find { it.id == g.kelasId }
             holder.tvKelas.text = "Wali Kelas: ${kelasData?.namaKelas ?: "-"}"
             
-            holder.ivFoto.setImageResource(R.drawable.ic_user_solid)
+            Glide.with(holder.itemView.context)
+                .load(g.foto)
+                .placeholder(R.drawable.ic_user_solid)
+                .error(R.drawable.ic_user_solid)
+                .into(holder.ivFoto)
             
             holder.btnEdit.setOnClickListener { onEdit(g) }
             holder.btnDelete.setOnClickListener { onDelete(g) }

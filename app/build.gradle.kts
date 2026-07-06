@@ -42,7 +42,6 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     
-    // Tambahkan CardView secara eksplisit
     implementation("androidx.cardview:cardview:1.0.0")
 
     implementation(libs.androidx.activity)
@@ -56,6 +55,8 @@ dependencies {
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-firestore-ktx")
     implementation(libs.google.material)
+    
+    implementation(libs.glide)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
