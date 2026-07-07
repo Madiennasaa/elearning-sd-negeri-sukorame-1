@@ -1,6 +1,7 @@
 package com.polinema.mi.elearning_sd_negeri_sukorame_1.ui.home
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,7 +9,9 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
+import com.polinema.mi.elearning_sd_negeri_sukorame_1.data.model.Jadwal
 import com.polinema.mi.elearning_sd_negeri_sukorame_1.data.model.MataPelajaranData
 import com.polinema.mi.elearning_sd_negeri_sukorame_1.data.model.Kelas
 import com.polinema.mi.elearning_sd_negeri_sukorame_1.data.model.User
@@ -27,11 +30,7 @@ class GuruInputNilaiFragment : Fragment() {
     private var guruUid = ""
     private var kelasId = ""
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentGuruInputNilaiBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -39,12 +38,10 @@ class GuruInputNilaiFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         sessionManager = SessionManager(requireContext())
-
-        val user = sessionManager.getUser()
-        guruUid = user?.uid ?: ""
+        guruUid = sessionManager.getUser()?.uid ?: ""
         
         if (guruUid.isEmpty()) {
-            Toast.makeText(requireContext(), "Sesi guru berakhir", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Sesi tidak valid", Toast.LENGTH_SHORT).show()
             parentFragmentManager.popBackStack()
             return
         }
@@ -55,146 +52,106 @@ class GuruInputNilaiFragment : Fragment() {
     }
 
     private fun fetchKelasInfo() {
-        db.collection("kelas")
-            .whereEqualTo("guruId", guruUid)
-            .get()
+        db.collection("kelas").whereEqualTo("guruId", guruUid).get()
             .addOnSuccessListener { snapshot ->
                 if (!isAdded) return@addOnSuccessListener
-                val list = snapshot.documents.mapNotNull { doc ->
-                    doc.toObject(Kelas::class.java)?.copy(id = doc.id)
-                }
+                val list = snapshot.documents.mapNotNull { it.toObject(Kelas::class.java)?.copy(id = it.id) }
                 if (list.isNotEmpty()) {
                     kelasList.clear()
                     kelasList.addAll(list)
-                    
-                    val classNames = kelasList.map { it.namaKelas ?: "Kelas ${it.id}" }
-                    val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, classNames)
+                    val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, kelasList.map { it.namaKelas ?: it.id })
                     adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                     binding.spinnerKelas.adapter = adapter
-                    
                     binding.spinnerKelas.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
-                        override fun onItemSelected(parent: android.widget.AdapterView<*>?, view: android.view.View?, position: Int, id: Long) {
-                            kelasId = kelasList[position].id
+                        override fun onItemSelected(p: android.widget.AdapterView<*>?, v: View?, pos: Int, id: Long) {
+                            kelasId = kelasList[pos].id
+                            loadMapelByJadwal()
                             setupStudentList()
                         }
-                        override fun onNothingSelected(parent: android.widget.AdapterView<*>?) {}
+                        override fun onNothingSelected(p: android.widget.AdapterView<*>?) {}
                     }
-                    
-                    setupSpinners()
-                } else {
-                    Toast.makeText(requireContext(), "Anda belum terdaftar sebagai wali kelas.", Toast.LENGTH_LONG).show()
-                    binding.btnSimpanNilai.isEnabled = false
-                    binding.labelKelas.visibility = View.GONE
-                    binding.spinnerKelas.visibility = View.GONE
-                    binding.dividerKelas.visibility = View.GONE
                 }
-            }
-            .addOnFailureListener { e ->
-                if (!isAdded) return@addOnFailureListener
-                Toast.makeText(requireContext(), "Gagal memuat data kelas", Toast.LENGTH_SHORT).show()
             }
     }
 
-    private fun setupSpinners() {
-        db.collection("mapel")
-            .get()
+    private fun loadMapelByJadwal() {
+        db.collection("jadwal").whereEqualTo("guruId", guruUid).whereEqualTo("kelasId", kelasId).get()
             .addOnSuccessListener { snapshot ->
                 if (!isAdded) return@addOnSuccessListener
                 val list = snapshot.documents.mapNotNull { doc ->
-                    doc.toObject(MataPelajaranData::class.java)?.copy(id = doc.id)
-                }
+                    val j = doc.toObject(Jadwal::class.java)
+                    if (j != null) MataPelajaranData(id = j.mapelId ?: "", nama = j.namaMapel ?: "") else null
+                }.distinctBy { it.id }
                 mapelList.clear()
                 mapelList.addAll(list)
+                binding.spinnerMapel.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, mapelList.map { it.nama })
+                    .also { it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) }
                 
-                val mapelNames = mapelList.map { it.nama }
-                binding.spinnerMapel.adapter = ArrayAdapter(
-                    requireContext(),
-                    android.R.layout.simple_spinner_item,
-                    mapelNames
-                ).also { it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) }
+                binding.spinnerJenisNilai.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, listOf("Tugas", "UH", "UTS", "UAS"))
+                    .also { it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) }
             }
-            .addOnFailureListener { e ->
-                if (!isAdded) return@addOnFailureListener
-                Toast.makeText(requireContext(), "Gagal memuat mata pelajaran", Toast.LENGTH_SHORT).show()
-            }
-
-        val jenisNilai = listOf("Tugas", "UH", "UTS", "UAS")
-        binding.spinnerJenisNilai.adapter = ArrayAdapter(
-            requireContext(),
-            android.R.layout.simple_spinner_item,
-            jenisNilai
-        ).also { it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) }
     }
 
     private fun setupStudentList() {
-        // Mengambil siswa dari koleksi users dengan filter role 'siswa' dan kelasId
-        db.collection("users")
-            .whereEqualTo("role", "siswa")
-            .whereEqualTo("kelasId", kelasId)
-            .get()
+        db.collection("users").whereEqualTo("role", "siswa").whereEqualTo("kelasId", kelasId).get()
             .addOnSuccessListener { snapshot ->
                 if (!isAdded) return@addOnSuccessListener
-                val students = snapshot.documents.mapNotNull { doc ->
-                    doc.toObject(User::class.java)?.copy(uid = doc.id)
+                val students = snapshot.documents.mapNotNull { it.toObject(User::class.java)?.copy(uid = it.id) }
+                students.forEach { if (!nilaiMap.containsKey(it.uid)) nilaiMap[it.uid] = 0.0 }
+                binding.rvInputNilai.apply {
+                    layoutManager = LinearLayoutManager(requireContext())
+                    adapter = InputNilaiAdapter(students) { sId, nilai -> nilaiMap[sId] = nilai }
                 }
-                if (students.isEmpty()) {
-                    Toast.makeText(requireContext(), "Tidak ada siswa di kelas ini", Toast.LENGTH_SHORT).show()
-                    binding.btnSimpanNilai.isEnabled = false
-                } else {
-                    binding.btnSimpanNilai.isEnabled = true
-                    binding.rvInputNilai.layoutManager = LinearLayoutManager(requireContext())
-                    binding.rvInputNilai.adapter = InputNilaiAdapter(students) { sId, nilai ->
-                        nilaiMap[sId] = nilai
-                    }
-                }
-            }
-            .addOnFailureListener { e ->
-                if (!isAdded) return@addOnFailureListener
-                Toast.makeText(requireContext(), "Gagal memuat siswa", Toast.LENGTH_SHORT).show()
             }
     }
 
     private fun simpanNilai() {
-        if (mapelList.isEmpty()) {
-            Toast.makeText(requireContext(), "Tidak ada mata pelajaran tersedia", Toast.LENGTH_SHORT).show()
-            return
-        }
-        if (nilaiMap.isEmpty()) {
-            Toast.makeText(requireContext(), "Belum ada nilai yang diisi", Toast.LENGTH_SHORT).show()
+        val mapelPos = binding.spinnerMapel.selectedItemPosition
+        if (mapelPos < 0 || mapelList.isEmpty()) {
+            Toast.makeText(requireContext(), "Pilih mata pelajaran", Toast.LENGTH_SHORT).show()
             return
         }
 
-        val mapelId = mapelList[binding.spinnerMapel.selectedItemPosition].id
-        val mapelNama = mapelList[binding.spinnerMapel.selectedItemPosition].nama
-        val jenisNilai = binding.spinnerJenisNilai.selectedItem?.toString() ?: return
-
+        val mapel = mapelList[mapelPos]
+        val jenis = binding.spinnerJenisNilai.selectedItem?.toString() ?: "Tugas"
         val batch = db.batch()
-        
-        nilaiMap.forEach { (siswaId, nilaiVal) ->
-            val docRef = db.collection("nilai").document()
-            val data = hashMapOf(
-                "siswaId" to siswaId,
-                "namaMapel" to mapelNama,
-                "mataPelajaranId" to mapelId,
-                "guruId" to guruUid,
-                "jenisNilai" to jenisNilai,
-                "nilai" to nilaiVal,
-                "semester" to "1"
-            )
-            batch.set(docRef, data)
-        }
 
-        batch.commit()
-            .addOnSuccessListener {
-                if (!isAdded) return@addOnSuccessListener
-                Toast.makeText(requireContext(), "Semua nilai berhasil disimpan!", Toast.LENGTH_SHORT).show()
-                nilaiMap.clear()
-                parentFragmentManager.popBackStack()
+        try {
+            nilaiMap.forEach { (siswaId, nilaiVal) ->
+                val docRef = db.collection("nilai").document()
+                val payload = hashMapOf(
+                    "siswaId" to siswaId,
+                    "guruId" to guruUid,
+                    "kelasId" to kelasId,
+                    "mapelId" to mapel.id,
+                    "namaMapel" to mapel.nama,
+                    "jenisNilai" to jenis,
+                    "nilai" to nilaiVal,
+                    "semester" to "1",
+                    "tahunAjaran" to "2024/2025",
+                    "createdAt" to Timestamp.now()
+                )
+                batch.set(docRef, payload)
             }
-            .addOnFailureListener { e ->
-                if (!isAdded) return@addOnFailureListener
-                Toast.makeText(requireContext(), "Gagal menyimpan nilai", Toast.LENGTH_SHORT).show()
-            }
+
+            binding.btnSimpanNilai.isEnabled = false
+            batch.commit()
+                .addOnSuccessListener {
+                    if (isAdded) {
+                        Toast.makeText(requireContext(), "Nilai berhasil disimpan", Toast.LENGTH_SHORT).show()
+                        parentFragmentManager.popBackStack()
+                    }
+                }
+                .addOnFailureListener { e ->
+                    if (isAdded) {
+                        binding.btnSimpanNilai.isEnabled = true
+                        Log.e("SAVE_ERROR", "Error: ${e.message}")
+                        Toast.makeText(requireContext(), "Gagal: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
+                    }
+                }
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "Kesalahan sistem: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onDestroyView() {
