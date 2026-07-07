@@ -86,25 +86,6 @@ class DashboardGuruFragment : Fragment() {
                 GuruDaftarSiswaFragment().apply { arguments = makeArgs() }
             )
         }
-
-        // --- MANAJEMEN DATA ---
-        binding.menuLihatMateri.setOnClickListener {
-            val kId = user?.kelasId ?: ""
-            if (kId.isNotEmpty()) {
-                homeActivity?.replaceFragment(ListFragment.newInstance("MATERI", kId, ""))
-            } else {
-                fetchGuruKelasAndNavigate(homeActivity, "MATERI")
-            }
-        }
-
-        binding.menuLihatTugas.setOnClickListener {
-            val kId = user?.kelasId ?: ""
-            if (kId.isNotEmpty()) {
-                homeActivity?.replaceFragment(ListFragment.newInstance("TUGAS", kId, ""))
-            } else {
-                fetchGuruKelasAndNavigate(homeActivity, "TUGAS")
-            }
-        }
     }
 
     private fun fetchGuruKelasAndNavigate(home: HomeActivity?, type: String) {
