@@ -114,6 +114,13 @@ class GuruInputNilaiFragment : Fragment() {
 
         val mapel = mapelList[mapelPos]
         val jenis = binding.spinnerJenisNilai.selectedItem?.toString() ?: "Tugas"
+        
+        if (nilaiMap.isEmpty()) {
+            Toast.makeText(requireContext(), "Isi minimal satu nilai", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        binding.btnSimpanNilai.isEnabled = false
         val batch = db.batch()
 
         try {
@@ -126,7 +133,7 @@ class GuruInputNilaiFragment : Fragment() {
                     "mapelId" to mapel.id,
                     "namaMapel" to mapel.nama,
                     "jenisNilai" to jenis,
-                    "nilai" to nilaiVal,
+                    "nilai" to (nilaiVal ?: 0.0),
                     "semester" to "1",
                     "tahunAjaran" to "2024/2025",
                     "createdAt" to Timestamp.now()
@@ -134,7 +141,6 @@ class GuruInputNilaiFragment : Fragment() {
                 batch.set(docRef, payload)
             }
 
-            binding.btnSimpanNilai.isEnabled = false
             batch.commit()
                 .addOnSuccessListener {
                     if (isAdded) {
@@ -150,6 +156,7 @@ class GuruInputNilaiFragment : Fragment() {
                     }
                 }
         } catch (e: Exception) {
+            binding.btnSimpanNilai.isEnabled = true
             Toast.makeText(requireContext(), "Kesalahan sistem: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }

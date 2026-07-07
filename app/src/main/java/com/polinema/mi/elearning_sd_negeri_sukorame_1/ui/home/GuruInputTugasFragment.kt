@@ -16,6 +16,7 @@ import com.polinema.mi.elearning_sd_negeri_sukorame_1.R
 import com.polinema.mi.elearning_sd_negeri_sukorame_1.data.model.MataPelajaranData
 import com.polinema.mi.elearning_sd_negeri_sukorame_1.data.model.Tugas
 import com.polinema.mi.elearning_sd_negeri_sukorame_1.data.model.Kelas
+import com.polinema.mi.elearning_sd_negeri_sukorame_1.data.model.Jadwal
 import com.polinema.mi.elearning_sd_negeri_sukorame_1.data.network.SessionManager
 
 class GuruInputTugasFragment : Fragment() {
@@ -111,20 +112,19 @@ class GuruInputTugasFragment : Fragment() {
                 listTugas.addAll(list)
                 adapter.notifyDataSetChanged()
             }
-            .addOnFailureListener { e ->
-                if (!isAdded) return@addOnFailureListener
-                Toast.makeText(requireContext(), "Gagal memuat tugas: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
     }
 
     private fun loadMapel() {
-        db.collection("mata_pelajaran")
+        db.collection("jadwal")
+            .whereEqualTo("guruId", guruId)
+            .whereEqualTo("kelasId", kelasId)
             .get()
             .addOnSuccessListener { snapshot ->
                 if (!isAdded) return@addOnSuccessListener
                 val list = snapshot.documents.mapNotNull { doc ->
-                    doc.toObject(MataPelajaranData::class.java)?.copy(id = doc.id)
-                }
+                    val j = doc.toObject(Jadwal::class.java)
+                    if (j != null) MataPelajaranData(id = j.mapelId ?: "", nama = j.namaMapel ?: "") else null
+                }.distinctBy { it.id }
                 mapelList.clear()
                 mapelList.addAll(list)
             }
@@ -136,7 +136,7 @@ class GuruInputTugasFragment : Fragment() {
             return
         }
         if (mapelList.isEmpty()) {
-            Toast.makeText(requireContext(), "Tidak ada mata pelajaran tersedia.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Tidak ada mata pelajaran di jadwal Anda.", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -170,13 +170,8 @@ class GuruInputTugasFragment : Fragment() {
                 val mapelId = mapel.id
                 val mapelNama = mapel.nama
 
-                if (judul.isEmpty()) {
-                    Toast.makeText(requireContext(), "Judul tugas wajib diisi", Toast.LENGTH_SHORT).show()
-                    return@setPositiveButton
-                }
-
-                if (deadline.isEmpty()) {
-                    Toast.makeText(requireContext(), "Deadline wajib diisi", Toast.LENGTH_SHORT).show()
+                if (judul.isEmpty() || deadline.isEmpty()) {
+                    Toast.makeText(requireContext(), "Judul dan Deadline wajib diisi", Toast.LENGTH_SHORT).show()
                     return@setPositiveButton
                 }
 
@@ -185,24 +180,25 @@ class GuruInputTugasFragment : Fragment() {
                     "mapelId" to mapelId,
                     "namaMapel" to mapelNama,
                     "guruId" to guruId,
+                    "namaGuru" to (sessionManager.getUser()?.name ?: "Guru"),
                     "kelasId" to kelasId,
                     "deadline" to deadline,
                     "jumlahSoal" to 0,
-                    "durasi" to 60
+                    "durasi" to 60,
+                    "createdAt" to com.google.firebase.Timestamp.now()
                 )
 
                 db.collection("tugas")
                     .add(data)
                     .addOnSuccessListener { docRef ->
                         if (!isAdded) return@addOnSuccessListener
-                        val newId = docRef.id
-                        Toast.makeText(requireContext(), "Tugas berhasil dibuat. Silakan tambah soal!", Toast.LENGTH_LONG).show()
+                        Toast.makeText(requireContext(), "Tugas berhasil dibuat!", Toast.LENGTH_SHORT).show()
                         loadTugas()
-                        showManageSoalDialog(newId, judul)
+                        showManageSoalDialog(docRef.id, judul)
                     }
                     .addOnFailureListener { e ->
                         if (!isAdded) return@addOnFailureListener
-                        Toast.makeText(requireContext(), "Gagal menyimpan tugas: ${e.message}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), "Gagal: ${e.message}", Toast.LENGTH_SHORT).show()
                     }
             }
             .setNegativeButton("Batal", null)
@@ -229,19 +225,11 @@ class GuruInputTugasFragment : Fragment() {
                 val pilD = etPilD.text.toString().trim()
 
                 val jawabanBenar = when (rgJawaban.checkedRadioButtonId) {
-                    R.id.rbA -> "A"
-                    R.id.rbB -> "B"
-                    R.id.rbC -> "C"
-                    R.id.rbD -> "D"
-                    else -> ""
+                    R.id.rbA -> "A"; R.id.rbB -> "B"; R.id.rbC -> "C"; R.id.rbD -> "D"; else -> ""
                 }
 
-                if (pertanyaan.isEmpty() || pilA.isEmpty() || pilB.isEmpty()) {
-                    Toast.makeText(requireContext(), "Pertanyaan dan minimal 2 pilihan wajib diisi", Toast.LENGTH_SHORT).show()
-                    return@setPositiveButton
-                }
-                if (jawabanBenar.isEmpty()) {
-                    Toast.makeText(requireContext(), "Pilih jawaban yang benar", Toast.LENGTH_SHORT).show()
+                if (pertanyaan.isEmpty() || pilA.isEmpty() || pilB.isEmpty() || jawabanBenar.isEmpty()) {
+                    Toast.makeText(requireContext(), "Lengkapi data soal dan jawaban", Toast.LENGTH_SHORT).show()
                     return@setPositiveButton
                 }
 
@@ -258,52 +246,23 @@ class GuruInputTugasFragment : Fragment() {
                 db.collection("tugas").document(tugasId).collection("soal")
                     .add(data)
                     .addOnSuccessListener {
-                        if (!isAdded) return@addOnSuccessListener
-                        
                         db.collection("tugas").document(tugasId)
                             .update("jumlahSoal", com.google.firebase.firestore.FieldValue.increment(1))
                             .addOnSuccessListener {
-                                Toast.makeText(requireContext(), "Soal berhasil ditambahkan!", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(requireContext(), "Soal disimpan!", Toast.LENGTH_SHORT).show()
                                 loadTugas()
-                                if (isAdded) {
-                                    AlertDialog.Builder(requireContext())
-                                        .setMessage("Soal berhasil disimpan. Tambah soal lagi untuk tugas ini?")
-                                        .setPositiveButton("Ya") { d, _ -> 
-                                            d.dismiss()
-                                            showManageSoalDialog(tugasId, judulTugas) 
-                                        }
-                                        .setNegativeButton("Selesai", null)
-                                        .show()
-                                }
                             }
-                            .addOnFailureListener { e ->
-                                Toast.makeText(requireContext(), "Gagal update jumlah soal: ${e.message}", Toast.LENGTH_SHORT).show()
-                            }
-                    }
-                    .addOnFailureListener { e ->
-                        if (!isAdded) return@addOnFailureListener
-                        Toast.makeText(requireContext(), "Error Simpan Soal: ${e.message}", Toast.LENGTH_SHORT).show()
                     }
             }
-            .setNegativeButton("Batal", null)
+            .setNegativeButton("Selesai", null)
             .show()
     }
 
     private fun confirmDeleteTugas(id: String) {
         AlertDialog.Builder(requireContext())
-            .setMessage("Hapus tugas ini beserta semua soalnya?")
+            .setMessage("Hapus tugas ini?")
             .setPositiveButton("Hapus") { _, _ ->
-                db.collection("tugas").document(id)
-                    .delete()
-                    .addOnSuccessListener {
-                        if (!isAdded) return@addOnSuccessListener
-                        Toast.makeText(requireContext(), "Tugas dihapus", Toast.LENGTH_SHORT).show()
-                        loadTugas()
-                    }
-                    .addOnFailureListener { e ->
-                        if (!isAdded) return@addOnFailureListener
-                        Toast.makeText(requireContext(), "Gagal menghapus tugas: ${e.message}", Toast.LENGTH_SHORT).show()
-                    }
+                db.collection("tugas").document(id).delete().addOnSuccessListener { loadTugas() }
             }
             .setNegativeButton("Batal", null)
             .show()
@@ -314,7 +273,6 @@ class GuruInputTugasFragment : Fragment() {
         val onManageSoal: (String, String) -> Unit,
         val onDelete: (String) -> Unit
     ) : RecyclerView.Adapter<TugasAdapter.VH>() {
-
         inner class VH(v: View) : RecyclerView.ViewHolder(v) {
             val tvJudul: TextView = v.findViewById(R.id.tvJudulTugasItem)
             val tvMapel: TextView = v.findViewById(R.id.tvMapelTugasItem)
@@ -323,10 +281,8 @@ class GuruInputTugasFragment : Fragment() {
             val btnTambahSoal: Button = v.findViewById(R.id.btnTambahSoal)
             val btnDelete: ImageButton = v.findViewById(R.id.btnDeleteTugas)
         }
-
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
             VH(LayoutInflater.from(parent.context).inflate(R.layout.item_tugas_guru, parent, false))
-
         override fun onBindViewHolder(holder: VH, position: Int) {
             val item = list[position]
             holder.tvJudul.text = item.judul
@@ -336,7 +292,6 @@ class GuruInputTugasFragment : Fragment() {
             holder.btnTambahSoal.setOnClickListener { onManageSoal(item.id, item.judul ?: "") }
             holder.btnDelete.setOnClickListener { onDelete(item.id) }
         }
-
         override fun getItemCount() = list.size
     }
 }

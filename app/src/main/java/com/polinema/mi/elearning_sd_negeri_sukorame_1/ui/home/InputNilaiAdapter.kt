@@ -13,33 +13,38 @@ class InputNilaiAdapter(
     private val onNilaiChanged: (String, Double) -> Unit
 ) : RecyclerView.Adapter<InputNilaiAdapter.ViewHolder>() {
 
-    class ViewHolder(val binding: ItemInputNilaiBinding) : RecyclerView.ViewHolder(binding.root) {
-        var currentWatcher: TextWatcher? = null
+    private val inputStates = mutableMapOf<String, String>()
+
+    inner class ViewHolder(val binding: ItemInputNilaiBinding) : RecyclerView.ViewHolder(binding.root) {
+        private var textWatcher: TextWatcher? = null
+
+        fun bind(student: User) {
+            binding.tvStudentName.text = student.name
+            
+            // Remove old watcher to prevent conflicts during recycling
+            textWatcher?.let { binding.etNilai.removeTextChangedListener(it) }
+            
+            // Restore state
+            binding.etNilai.setText(inputStates[student.uid] ?: "")
+
+            textWatcher = object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+                override fun afterTextChanged(s: Editable?) {
+                    val input = s.toString()
+                    inputStates[student.uid] = input
+                    val value = input.toDoubleOrNull() ?: 0.0
+                    onNilaiChanged(student.uid, value)
+                }
+            }
+            binding.etNilai.addTextChangedListener(textWatcher)
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val binding = ItemInputNilaiBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return ViewHolder(binding)
+        return ViewHolder(ItemInputNilaiBinding.inflate(LayoutInflater.from(parent.context), parent, false))
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val student = students[position]
-        holder.binding.tvStudentName.text = student.name
-        
-        // Remove old watcher if any
-        holder.currentWatcher?.let { holder.binding.etNilai.removeTextChangedListener(it) }
-
-        val watcher = object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: Editable?) {
-                val value = s.toString().toDoubleOrNull() ?: 0.0
-                onNilaiChanged(student.uid, value)
-            }
-        }
-        holder.binding.etNilai.addTextChangedListener(watcher)
-        holder.currentWatcher = watcher
-    }
-
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) = holder.bind(students[position])
     override fun getItemCount() = students.size
 }
