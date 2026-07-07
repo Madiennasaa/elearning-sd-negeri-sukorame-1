@@ -36,11 +36,8 @@ class ProfileFragment : Fragment() {
             (activity as? HomeActivity)?.backToHome()
         }
         
-        // Show local data first
-        val user = sessionManager.getUser()
-        updateUI(user)
-        
-        // Refresh from Firestore
+        setupThemeToggle()
+        updateUI(sessionManager.getUser())
         refreshProfile()
         
         binding.btnLogout.setOnClickListener {
@@ -57,6 +54,14 @@ class ProfileFragment : Fragment() {
         }
     }
 
+    private fun setupThemeToggle() {
+        binding.switchDarkMode.isChecked = sessionManager.isDarkMode()
+        binding.switchDarkMode.setOnCheckedChangeListener { _, isChecked ->
+            sessionManager.setDarkMode(isChecked)
+            activity?.recreate()
+        }
+    }
+
     private fun refreshProfile() {
         val uid = auth.currentUser?.uid ?: return
         db.collection("users").document(uid).get()
@@ -68,49 +73,26 @@ class ProfileFragment : Fragment() {
                     updateUI(updatedUser)
                 }
             }
-            .addOnFailureListener { e ->
-                if (!isAdded) return@addOnFailureListener
-                Toast.makeText(requireContext(), "Gagal refresh profil: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
     }
 
     private fun deleteMyAccount() {
         val user = auth.currentUser
         val uid = user?.uid ?: return
-
         AlertDialog.Builder(requireContext())
-            .setTitle("Hapus Akun Permanen")
-            .setMessage("Apakah Anda yakin? Semua data Anda akan dihapus secara permanen dan aplikasi akan otomatis logout.")
-            .setPositiveButton("Ya, Hapus") { _, _ ->
-                // 1. Hapus data di Firestore terlebih dahulu
-                db.collection("users").document(uid).delete()
-                    .addOnSuccessListener {
-                        // 2. Jika Firestore berhasil, hapus user di Firebase Auth
-                        user.delete()
-                            .addOnSuccessListener {
-                                // 3. Jika Auth berhasil, bersihkan session lokal dan redirect
-                                handleCleanLogout("Akun Anda telah dihapus secara permanen.")
-                            }
-                            .addOnFailureListener { e ->
-                                // Jika gagal hapus Auth (misal: perlu re-login), beri tahu user
-                                Toast.makeText(requireContext(), "Gagal hapus autentikasi: ${e.message}. Silakan login ulang dan coba lagi.", Toast.LENGTH_LONG).show()
-                            }
-                    }
-                    .addOnFailureListener { e ->
-                        Toast.makeText(requireContext(), "Gagal hapus data Firestore: ${e.message}", Toast.LENGTH_SHORT).show()
-                    }
+            .setTitle("Hapus Akun")
+            .setMessage("Hapus akun permanen?")
+            .setPositiveButton("Ya") { _, _ ->
+                db.collection("users").document(uid).delete().addOnSuccessListener {
+                    user.delete().addOnSuccessListener { handleCleanLogout("Akun dihapus.") }
+                }
             }
             .setNegativeButton("Batal", null)
             .show()
     }
 
     private fun handleCleanLogout(message: String) {
-        // Panggil SessionManager untuk hapus SharedPreferences & FirebaseAuth.signOut()
         sessionManager.logout()
-
         Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
-
-        // Redirect ke LoginActivity dan bersihkan Backstack
         val intent = Intent(requireActivity(), LoginActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
@@ -119,16 +101,10 @@ class ProfileFragment : Fragment() {
     
     private fun updateUI(user: User?) {
         binding.tvName.text = user?.name ?: "User"
-        binding.tvRole.text = user?.role?.replace("_", " ")?.lowercase()?.replaceFirstChar { it.uppercase() } ?: "Role"
+        binding.tvRole.text = user?.role ?: "Role"
         binding.tvEmail.text = user?.email ?: "-"
         binding.tvPhone.text = user?.noHp ?: "-"
-
-        // Restriction: Hide delete button if the user is an admin
-        if (user?.role == "admin") {
-            binding.btnDeleteAccount.visibility = View.GONE
-        } else {
-            binding.btnDeleteAccount.visibility = View.VISIBLE
-        }
+        binding.btnDeleteAccount.visibility = if (user?.role == "admin") View.GONE else View.VISIBLE
     }
 
     override fun onDestroyView() {
