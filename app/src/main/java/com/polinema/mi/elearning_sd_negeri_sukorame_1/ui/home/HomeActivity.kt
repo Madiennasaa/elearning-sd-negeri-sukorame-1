@@ -24,11 +24,13 @@ class HomeActivity : AppCompatActivity() {
     private var currentGuruId: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        sessionManager = SessionManager(this)
+        sessionManager.applyTheme(sessionManager.isDarkMode())
+        
         super.onCreate(savedInstanceState)
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        sessionManager = SessionManager(this)
         val user = sessionManager.getUser()
 
         if (user == null) {
@@ -42,20 +44,16 @@ class HomeActivity : AppCompatActivity() {
         currentKelasId = user.kelasId ?: ""
         currentGuruId  = user.idGuru ?: ""
 
-        // Bottom nav hanya untuk siswa
         binding.bottomNavigation.visibility =
             if (currentRole == "siswa") View.VISIBLE else View.GONE
 
         setupBottomNavigation()
         setupTopBar()
 
-        // Langsung load dashboard saat startup
         if (savedInstanceState == null) {
             loadDashboardByRole()
         }
     }
-
-    // ── Top Bar ────────────────────────────────────────────────────────────────
 
     private fun setupTopBar() {
         binding.ivNotif.setOnClickListener {
@@ -83,8 +81,6 @@ class HomeActivity : AppCompatActivity() {
         finish()
     }
 
-    // ── Dashboard per role ─────────────────────────────────────────────────────
-
     private fun loadDashboardByRole() {
         val fragment = when (currentRole) {
             "guru"           -> DashboardGuruFragment()
@@ -96,18 +92,12 @@ class HomeActivity : AppCompatActivity() {
         replaceFragment(fragment, isMainTab = true)
     }
 
-    // ── Bottom Navigation ──────────────────────────────────────────────────────
-
     private fun setupBottomNavigation() {
         binding.bottomNavigation.setOnItemSelectedListener { item ->
-            // Pastikan tidak re-load jika sudah di fragment yang sama (tanpa backstack)
             if (binding.bottomNavigation.selectedItemId == item.itemId && supportFragmentManager.backStackEntryCount == 0) {
                 return@setOnItemSelectedListener false
             }
-
-            // Bersihkan backstack secara sinkron agar tidak ada konflik transaksi
             supportFragmentManager.popBackStackImmediate(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE)
-            
             when (item.itemId) {
                 R.id.navHome   -> { loadDashboardByRole(); true }
                 R.id.navMateri -> { navigateToList("MATERI", fromNav = true); true }
@@ -138,9 +128,6 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Kembali ke Home dan pastikan bottom nav sinkron
-     */
     fun backToHome() {
         if (binding.bottomNavigation.selectedItemId != R.id.navHome) {
             binding.bottomNavigation.selectedItemId = R.id.navHome
@@ -150,14 +137,10 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
-    // ── Navigate ───────────────────────────────────────────────────────────────
-
     fun navigateToList(type: String, fromNav: Boolean = false) {
         val siswaOnly = listOf("MATERI", "TUGAS", "HADIR", "NILAI", "RAPORT")
         if (type in siswaOnly && currentRole != "siswa") return
 
-        // Jika ini adalah tab utama dan tidak dipicu dari bottom nav,
-        // kita sinkronkan bottom nav selection-nya.
         if (!fromNav) {
             if (type == "MATERI" && binding.bottomNavigation.selectedItemId != R.id.navMateri) {
                 binding.bottomNavigation.selectedItemId = R.id.navMateri
@@ -180,9 +163,7 @@ class HomeActivity : AppCompatActivity() {
             else     -> DashboardFragment()
         }
         
-        // Cek apakah ini tab utama
-        val isMainTab = (type == "MATERI" || type == "TUGAS")
-        replaceFragment(fragment, isMainTab)
+        replaceFragment(fragment, type == "MATERI" || type == "TUGAS")
     }
 
     fun replaceFragment(fragment: Fragment, isMainTab: Boolean = false) {
@@ -200,7 +181,6 @@ class HomeActivity : AppCompatActivity() {
         val transaction = supportFragmentManager.beginTransaction()
             .replace(R.id.fragmentContainer, fragment)
             
-        // Jika bukan tab utama (materi/tugas/home), masukkan ke backstack
         if (!isMainTab) {
             transaction.addToBackStack(null)
         }

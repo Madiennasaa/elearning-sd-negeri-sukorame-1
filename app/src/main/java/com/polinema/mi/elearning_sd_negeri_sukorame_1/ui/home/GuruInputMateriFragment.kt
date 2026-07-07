@@ -35,7 +35,7 @@ class GuruInputMateriFragment : Fragment() {
         sessionManager = SessionManager(requireContext())
 
         val user = sessionManager.getUser()
-        guruId = user?.idGuru ?: ""
+        guruId = user?.uid ?: ""
         kelasId = user?.kelasId ?: ""
 
         if (guruId.isEmpty()) {
@@ -165,11 +165,6 @@ class GuruInputMateriFragment : Fragment() {
                     return@setPositiveButton
                 }
 
-                if (url.isNotEmpty() && !url.contains("youtube.com") && !url.contains("youtu.be")) {
-                    Toast.makeText(requireContext(), "Gunakan link YouTube yang valid (atau kosongkan jika tidak ada video)", Toast.LENGTH_LONG).show()
-                    return@setPositiveButton
-                }
-
                 val tipeMateri = if (url.isNotEmpty()) "video" else "materi"
 
                 val data = hashMapOf(
@@ -180,7 +175,7 @@ class GuruInputMateriFragment : Fragment() {
                     "mapelId" to mapelId,
                     "namaMapel" to mapelNama,
                     "guruId" to guruId,
-                    "namaGuru" to (sessionManager.getUser()?.name ?: ""),
+                    "namaGuru" to (sessionManager.getUser()?.name ?: "Guru"),
                     "kelasId" to kelasId
                 )
 

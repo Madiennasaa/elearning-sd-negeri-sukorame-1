@@ -37,7 +37,7 @@ class GuruInputTugasFragment : Fragment() {
         sessionManager = SessionManager(requireContext())
 
         val user = sessionManager.getUser()
-        guruId = user?.idGuru ?: ""
+        guruId = user?.uid ?: ""
         kelasId = user?.kelasId ?: ""
 
         if (guruId.isEmpty()) {

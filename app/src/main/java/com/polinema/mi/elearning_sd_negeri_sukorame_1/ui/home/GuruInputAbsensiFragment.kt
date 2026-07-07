@@ -50,7 +50,7 @@ class GuruInputAbsensiFragment : Fragment() {
         sessionManager = SessionManager(requireContext())
 
         val user = sessionManager.getUser()
-        guruId = user?.uid ?: "" // Menggunakan UID dari User model satu atap
+        guruId = user?.uid ?: "" 
 
         if (guruId.isEmpty()) {
             Toast.makeText(requireContext(), "Data guru tidak ditemukan", Toast.LENGTH_SHORT).show()
@@ -110,7 +110,6 @@ class GuruInputAbsensiFragment : Fragment() {
     }
 
     private fun loadSiswa() {
-        // Query ke koleksi users dengan filter role siswa dan kelasId
         db.collection("users")
             .whereEqualTo("role", "siswa")
             .whereEqualTo("kelasId", kelasId)
@@ -151,6 +150,7 @@ class GuruInputAbsensiFragment : Fragment() {
             val data = hashMapOf(
                 "siswaId" to siswaId,
                 "kelasId" to kelasId,
+                "guruId" to guruId,
                 "tanggal" to selectedDate,
                 "status" to status,
                 "keterangan" to "",
