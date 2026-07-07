@@ -1,204 +1,208 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
+    android:fillViewport="true"
     android:background="@color/bg_light">
-
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="160dp"
-        android:background="@color/primary_purple">
-
-        <View
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:layout_gravity="top|end"
-            android:layout_marginTop="-28dp"
-            android:layout_marginEnd="-28dp"
-            android:background="@drawable/bg_circle_light_blue"
-            android:alpha="0.15"/>
-
-        <View
-            android:layout_width="75dp"
-            android:layout_height="75dp"
-            android:layout_gravity="bottom|start"
-            android:layout_marginStart="-20dp"
-            android:layout_marginBottom="-20dp"
-            android:background="@drawable/bg_circle_pink"
-            android:alpha="0.18"/>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:gravity="center_vertical"
-            android:paddingStart="16dp"
-            android:paddingEnd="24dp"
-            android:paddingTop="16dp"
-            android:paddingBottom="20dp">
-
-            <ImageButton
-                android:id="@+id/btnBack"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:src="@drawable/ic_back"
-                android:background="@drawable/bg_pill_white_alpha"
-                android:padding="8dp"
-                app:tint="@color/on_header_title"
-                android:contentDescription="Kembali"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Input Nilai"
-                android:textColor="@color/on_header_title"
-                android:textSize="22sp"
-                android:textStyle="bold"
-                android:fontFamily="sans-serif-rounded"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:text="Masukkan nilai akademik siswa"
-                android:textColor="@color/admin_header_chip"
-                android:textSize="12sp"
-                android:fontFamily="sans-serif-rounded"/>
-
-        </LinearLayout>
-    </FrameLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="20dp"
-        android:background="@color/primary_purple"/>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="vertical"
-        android:background="@drawable/bg_body_rounded_top"
-        android:layout_marginTop="-20dp"
-        android:paddingTop="16dp">
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
-        <androidx.cardview.widget.CardView
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginBottom="12dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="2dp"
-            app:cardBackgroundColor="@color/card_bg">
+            android:layout_height="160dp"
+            android:background="@color/primary_purple">
+
+            <View
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_gravity="top|end"
+                android:layout_marginTop="-28dp"
+                android:layout_marginEnd="-28dp"
+                android:background="@drawable/bg_circle_light_blue"
+                android:alpha="0.15"/>
+
+            <View
+                android:layout_width="75dp"
+                android:layout_height="75dp"
+                android:layout_gravity="bottom|start"
+                android:layout_marginStart="-20dp"
+                android:layout_marginBottom="-20dp"
+                android:background="@drawable/bg_circle_pink"
+                android:alpha="0.18"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:gravity="center_vertical"
+                android:paddingStart="16dp"
+                android:paddingEnd="24dp"
+                android:paddingTop="16dp"
+                android:paddingBottom="20dp">
 
-                <TextView
-                    android:id="@+id/labelKelas"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="PILIH KELAS"
-                    android:textColor="@color/item_secondary_text"
-                    android:textSize="11sp"
-                    android:letterSpacing="0.1"
-                    android:textStyle="bold" />
-
-                <Spinner
-                    android:id="@+id/spinnerKelas"
-                    android:layout_width="match_parent"
-                    android:layout_height="44dp"
-                    android:layout_marginTop="4dp"
-                    android:background="@drawable/bg_spinner_status"
-                    android:paddingStart="8dp" />
-
-                <View
-                    android:id="@+id/dividerKelas"
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="12dp"
-                    android:layout_marginBottom="12dp"
-                    android:background="@color/stat_box_bg" />
+                <ImageButton
+                    android:id="@+id/btnBack"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:src="@drawable/ic_back"
+                    android:background="@drawable/bg_pill_white_alpha"
+                    android:padding="8dp"
+                    app:tint="@color/on_header_title"
+                    android:contentDescription="Kembali"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="MATA PELAJARAN"
-                    android:textColor="@color/item_secondary_text"
-                    android:textSize="11sp"
-                    android:letterSpacing="0.1"
-                    android:textStyle="bold" />
-
-                <Spinner
-                    android:id="@+id/spinnerMapel"
-                    android:layout_width="match_parent"
-                    android:layout_height="44dp"
-                    android:layout_marginTop="4dp"
-                    android:background="@drawable/bg_spinner_status"
-                    android:paddingStart="8dp" />
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="12dp"
-                    android:layout_marginBottom="12dp"
-                    android:background="@color/stat_box_bg" />
+                    android:layout_marginTop="8dp"
+                    android:text="Input Nilai"
+                    android:textColor="@color/on_header_title"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:fontFamily="sans-serif-rounded"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="JENIS NILAI"
-                    android:textColor="@color/item_secondary_text"
-                    android:textSize="11sp"
-                    android:letterSpacing="0.1"
-                    android:textStyle="bold" />
+                    android:layout_marginTop="2dp"
+                    android:text="Masukkan nilai akademik siswa"
+                    android:textColor="@color/admin_header_chip"
+                    android:textSize="12sp"
+                    android:fontFamily="sans-serif-rounded"/>
 
-                <Spinner
-                    android:id="@+id/spinnerJenisNilai"
-                    android:layout_width="match_parent"
-                    android:layout_height="44dp"
-                    android:layout_marginTop="4dp"
-                    android:background="@drawable/bg_spinner_status"
-                    android:paddingStart="8dp" />
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
+        </FrameLayout>
 
-        <TextView
-            android:layout_width="wrap_content"
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:background="@color/primary_purple"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_marginBottom="8dp"
-            android:text="Daftar Siswa"
-            android:textColor="@color/text_dark"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:fontFamily="sans-serif-rounded" />
+            android:orientation="vertical"
+            android:background="@drawable/bg_body_rounded_top"
+            android:layout_marginTop="-20dp"
+            android:paddingTop="16dp">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvInputNilai"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:clipToPadding="false"
-            android:paddingHorizontal="16dp"
-            android:paddingBottom="8dp" />
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginBottom="12dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="@color/card_bg">
 
-        <Button
-            android:id="@+id/btnSimpanNilai"
-            android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:layout_margin="16dp"
-            android:backgroundTint="@color/primary_purple"
-            android:text="Simpan Nilai"
-            android:textColor="@color/on_header_title"
-            android:textSize="15sp"
-            android:textStyle="bold" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
+                    <TextView
+                        android:id="@+id/labelKelas"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="PILIH KELAS"
+                        android:textColor="@color/item_secondary_text"
+                        android:textSize="11sp"
+                        android:letterSpacing="0.1"
+                        android:textStyle="bold" />
+
+                    <Spinner
+                        android:id="@+id/spinnerKelas"
+                        android:layout_width="match_parent"
+                        android:layout_height="44dp"
+                        android:layout_marginTop="4dp"
+                        android:background="@drawable/bg_spinner_status"
+                        android:paddingStart="8dp" />
+
+                    <View
+                        android:id="@+id/dividerKelas"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="12dp"
+                        android:layout_marginBottom="12dp"
+                        android:background="@color/stat_box_bg" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="MATA PELAJARAN"
+                        android:textColor="@color/item_secondary_text"
+                        android:textSize="11sp"
+                        android:letterSpacing="0.1"
+                        android:textStyle="bold" />
+
+                    <Spinner
+                        android:id="@+id/spinnerMapel"
+                        android:layout_width="match_parent"
+                        android:layout_height="44dp"
+                        android:layout_marginTop="4dp"
+                        android:background="@drawable/bg_spinner_status"
+                        android:paddingStart="8dp" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="12dp"
+                        android:layout_marginBottom="12dp"
+                        android:background="@color/stat_box_bg" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="JENIS NILAI"
+                        android:textColor="@color/item_secondary_text"
+                        android:textSize="11sp"
+                        android:letterSpacing="0.1"
+                        android:textStyle="bold" />
+
+                    <Spinner
+                        android:id="@+id/spinnerJenisNilai"
+                        android:layout_width="match_parent"
+                        android:layout_height="44dp"
+                        android:layout_marginTop="4dp"
+                        android:background="@drawable/bg_spinner_status"
+                        android:paddingStart="8dp" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginBottom="8dp"
+                android:text="Daftar Siswa"
+                android:textColor="@color/text_dark"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:fontFamily="sans-serif-rounded" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvInputNilai"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                android:clipToPadding="false"
+                android:paddingHorizontal="16dp"
+                android:paddingBottom="8dp" />
+
+            <Button
+                android:id="@+id/btnSimpanNilai"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_margin="16dp"
+                android:backgroundTint="@color/primary_purple"
+                android:text="Simpan Nilai"
+                android:textColor="@color/on_header_title"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+        </LinearLayout>
     </LinearLayout>
-</LinearLayout>
+</androidx.core.widget.NestedScrollView>
