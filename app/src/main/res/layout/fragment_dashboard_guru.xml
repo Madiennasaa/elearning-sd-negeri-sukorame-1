@@ -11,13 +11,11 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- ── HEADER ── -->
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="190dp"
             android:background="@color/primary_purple">
 
-            <!-- Dekorasi lingkaran -->
             <View
                 android:layout_width="130dp"
                 android:layout_height="130dp"
@@ -65,7 +63,6 @@
                     android:textStyle="bold"
                     android:fontFamily="sans-serif-rounded"/>
 
-                <!-- Tombol jadwal -->
                 <FrameLayout
                     android:id="@+id/btnJadwalGuru"
                     android:layout_width="wrap_content"
@@ -100,7 +97,6 @@
             </LinearLayout>
         </FrameLayout>
 
-        <!-- ── MENU GRID ── -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -117,14 +113,12 @@
                 android:textStyle="bold"
                 android:fontFamily="sans-serif-rounded"/>
 
-            <!-- Row 1: Input Nilai + Input Absensi -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:layout_marginBottom="12dp">
 
-                <!-- Input Nilai -->
                 <androidx.cardview.widget.CardView
                     android:id="@+id/menuInputNilai"
                     android:layout_width="0dp"
@@ -168,7 +162,6 @@
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
-                <!-- Input Absensi -->
                 <androidx.cardview.widget.CardView
                     android:id="@+id/menuInputAbsen"
                     android:layout_width="0dp"
@@ -213,14 +206,12 @@
                 </androidx.cardview.widget.CardView>
             </LinearLayout>
 
-            <!-- Row 2: Upload Materi + Daftar Siswa -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:layout_marginBottom="12dp">
 
-                <!-- Upload Materi -->
                 <androidx.cardview.widget.CardView
                     android:id="@+id/menuUploadMateri"
                     android:layout_width="0dp"
@@ -264,7 +255,6 @@
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
-                <!-- Daftar Siswa -->
                 <androidx.cardview.widget.CardView
                     android:id="@+id/menuDaftarSiswa"
                     android:layout_width="0dp"
@@ -309,14 +299,11 @@
                 </androidx.cardview.widget.CardView>
             </LinearLayout>
 
-            <!-- Row 3: Input Tugas + Rapor -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="16dp">
+                android:orientation="horizontal">
 
-                <!-- Input Tugas -->
                 <androidx.cardview.widget.CardView
                     android:id="@+id/menuInputTugas"
                     android:layout_width="0dp"
@@ -360,7 +347,6 @@
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
-                <!-- Rapor -->
                 <androidx.cardview.widget.CardView
                     android:id="@+id/menuRapor"
                     android:layout_width="0dp"
@@ -401,90 +387,6 @@
                             android:textSize="13sp"
                             android:textStyle="bold"
                             android:fontFamily="sans-serif-rounded"/>
-                    </LinearLayout>
-                </androidx.cardview.widget.CardView>
-            </LinearLayout>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="14dp"
-                android:text="Manajemen Data"
-                android:textColor="@color/text_dark"
-                android:textSize="15sp"
-                android:textStyle="bold"
-                android:fontFamily="sans-serif-rounded"/>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="16dp">
-
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/menuLihatMateri"
-                    android:layout_width="0dp"
-                    android:layout_height="100dp"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="6dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:foreground="?attr/selectableItemBackground"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="0dp"
-                    app:cardBackgroundColor="@color/card_bg">
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:gravity="center"
-                        android:orientation="vertical">
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:src="@drawable/ic_book"
-                            app:tint="@color/label_orange"/>
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="Daftar Materi"
-                            android:textColor="@color/label_orange"
-                            android:textSize="12sp"
-                            android:textStyle="bold"/>
-                    </LinearLayout>
-                </androidx.cardview.widget.CardView>
-
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/menuLihatTugas"
-                    android:layout_width="0dp"
-                    android:layout_height="100dp"
-                    android:layout_weight="1"
-                    android:layout_marginStart="6dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:foreground="?attr/selectableItemBackground"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="0dp"
-                    app:cardBackgroundColor="@color/card_bg">
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:gravity="center"
-                        android:orientation="vertical">
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:src="@drawable/ic_pencil"
-                            app:tint="@color/label_red"/>
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="Daftar Tugas"
-                            android:textColor="@color/label_red"
-                            android:textSize="12sp"
-                            android:textStyle="bold"/>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
             </LinearLayout>
